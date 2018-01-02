@@ -1,0 +1,9 @@
+{
+	"size_fixation_deg":0.25,
+	"target_time":0.05,
+	"target_distractor_time":0.05,
+	"target_post_time":0.5,
+	"n_trials":240,
+	"max_eccentricity":12,
+	"distractor_deviation_angle":30
+}
