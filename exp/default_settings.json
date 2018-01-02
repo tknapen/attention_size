@@ -5,5 +5,12 @@
 	"target_post_time":0.5,
 	"n_trials":240,
 	"max_eccentricity":12,
-	"distractor_deviation_angle":30
+	"distractor_deviation_angle":30,
+	"blob_spacing_factor":3,
+	"nr_ring_conditions":2,
+	"nr_blob_rows_per_ring":24,
+	"row_spacing_factor":0.8,
+	"ecc_min":0.1,
+	"ecc_max":3.75,
+
 }

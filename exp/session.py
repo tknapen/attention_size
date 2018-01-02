@@ -1,12 +1,16 @@
-from exptools.core.session import EyelinkSession
-from trial import AttSizeTrial
 from psychopy import visual, clock
 import numpy as np
 import sympy as sym
 import os
-import exptools
 import json
 import glob
+
+import exptools
+from exptools.core.session import EyelinkSession
+from exptools.core.staircase import ThreeUpOneDownStaircase
+
+from trial import AttSizeTrial
+
 
 
 class AttSizeSession(EyelinkSession):
@@ -159,7 +163,7 @@ class AttSizeSession(EyelinkSession):
                                            mask='circle',
                                            size=size_fixation_pix,
                                            texRes=512,
-                                           color='red',
+                                           color='white',
                                            sf=0,
                                            pos=(0,0))
         
@@ -194,7 +198,7 @@ class AttSizeSession(EyelinkSession):
             if ti == 0:
                 parameters['fixation_time'] = 30.0
 
-            trial = STTrial(ti=ti,
+            trial = AttSizeTrial(ti=ti,
                            config=self.config,
                            screen=self.screen,
                            session=self,
