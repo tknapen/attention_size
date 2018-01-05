@@ -57,3 +57,69 @@ xys = [[pol2cart(ecc, pa) for pa in np.linspace(0, 2*np.pi,bpr)+np.random.rand()
 figure()
 for i, xy in enumerate(xys):
     plot(np.array(xy)[:,0], np.array(xy)[:,1], 'ko', ms=100*blob_row_blob_sizes[i])
+
+
+
+
+
+
+
+from psychopy import visual, core, event
+
+#create a window to draw in
+myWin = visual.Window((1200,1200), allowGUI=False, units='pix')
+
+tex_nr_pix=2048
+bar_width = 1/8.0
+cycles_in_bar = 5
+
+bar_width_in_pixels = tex_nr_pix*bar_width
+bar_width_in_radians = 2*np.pi*cycles_in_bar
+bar_pixels_per_radian = bar_width_in_radians/bar_width_in_pixels
+pixels_ls = np.linspace(-tex_nr_pix/2*bar_pixels_per_radian,tex_nr_pix/2*bar_pixels_per_radian,tex_nr_pix)
+
+tex_x, tex_y = np.meshgrid(pixels_ls, pixels_ls)
+sqr_tex = np.sign(np.sin(tex_x) * np.sin(tex_y))
+sqr_tex[:,tex_nr_pix*(bar_width/2)+tex_nr_pix/2:] = 0
+sqr_tex[:,:-tex_nr_pix*(bar_width/2)+tex_nr_pix/2] = 0
+
+#INITIALISE SOME STIMULI
+grating1 = visual.GratingStim(myWin, tex=sqr_tex, mask=None,
+                  color=[1.0, 1.0, 1.0],
+                  opacity=1.0,
+                  size=(tex_nr_pix, tex_nr_pix),
+                  ori=0)
+
+directions_per_time = np.concatenate([np.r_[np.ones(60+np.random.randint(60)), -np.ones(60+np.random.randint(60))] for x in range(200)])
+
+
+trialClock = core.Clock()
+t = 0
+TR = 1.5
+frame_nr = 0
+
+while t < 20*TR:    # quits after 20 secs
+
+    t = trialClock.getTime()
+
+    # sqr_tex = np.roll(sqr_tex, int(6*directions_per_time[frame_nr]), axis=0)
+
+    if frame_nr%5:
+        sqr_tex = -sqr_tex
+        # print((-tex_nr_pix/2 + int(0.5+t/TR)*tex_nr_pix/20.0, directions_per_time[frame_nr]))
+    grating1.setTex(sqr_tex)  # drift at 1Hz
+    grating1.draw()  #redraw it
+
+    grating1.setPos([-tex_nr_pix/2 + int(0.5+t/TR)*tex_nr_pix/20.0, 0])
+    grating1.setOri(0)
+
+    myWin.flip()          #update the screen
+
+    #handle key presses each frame
+    for keys in event.getKeys():
+        if keys in ['escape','q']:
+            core.quit()
+
+    frame_nr += 1
+
+

@@ -1,3 +1,4 @@
+from __future__ import division
 from exptools.core.session import EyelinkSession
 from trial import AttSizeTrial
 from psychopy import visual, clock
@@ -81,6 +82,28 @@ class AttSizeBGStim(object):
 
         nr_blobs_per_ring = ((2*np.pi*rows_ecc_in_deg[1:])/blob_row_sizes).astype(int)
 
+        element_array_np = []
+        ring_nr = 0
+        for ecc, bpr, s in zip(rows_ecc_in_deg[2:], nr_blobs_per_ring[1:], blob_row_blob_sizes[1:]):
+            if ring_nr in ring_pos:
+                continue
+            ring_condition = floor(nr_rings * total_nr_rows / ring_nr)
+            for pa in np.linspace(0, 2*np.pi,bpr):
+                x, y = pol2cart(ecc, pa)
+                element_array_np.append([x, y, ecc, pa, s, 0, 0, 0, ring_nr, ring_condition])
+            ring_nr += 1
+        self.element_array_np = np.array(element_array_np)
+
+        self.element_array_stim = visual.ElementArrayStim(self.session.screen, 
+                                                    colors=self.element_array_np[:,[5,6,7]], 
+                                                    colorSpace='rgb', 
+                                                    nElements=self.element_array_np.shape[0], 
+                                                    sizes=self.element_array_np[:,4], 
+                                                    sfs=0, 
+                                                    xys=self.element_array_np[:,[0,1]])
+        for i in range(nr_rings):
+            self.repopulate_condition_ring_colors(condition_nr=i, color_balance=0.5)
+
         # xys = [[pol2cart(ecc, pa) for pa in np.linspace(0, 2*np.pi,bpr)+np.random.rand()] for ecc, bpr in zip(rows_ecc_in_deg[2:], nr_blobs_per_ring[1:])]
         # pl.figure()
         # for i, xy in enumerate(xys):
@@ -93,15 +116,56 @@ class AttSizeBGStim(object):
                                             edges=256) for rp in ring_pos]
 
 
+    def repopulate_condition_ring_colors(self, condition_nr, color_balance):
+        this_ring_bool = self.element_array_np[:,-1] == condition_nr
+        nr_elements_in_condition = this_ring_bool.sum()
 
+        nr_signal_elements = int(nr_elements_in_condition * color_balance)
+        ordered_signals = np.r_[np.ones(nr_signal_elements), -np.ones(nr_elements_in_condition-nr_signal_elements)]
+        np.random.shuffle(ordered_signals)
 
+        self.element_array_np[this_ring_bool, 5] = ordered_signals
+        self.element_array_np[this_ring_bool, 6] = -ordered_signals
+
+    def insert_parameters_into_stim(self):
+        self.element_array_stim.setColors(self.element_array_np[:,[5,6,7]], log=False)
+        self.element_array_stim.setXYs(self.element_array_np[:,[0,1]], log=False)
 
     def recalculate_elements(self):
         pass
 
     def draw(self):
-        pass
+        self.element_array_stim.draw()
 
 class PRFStim(object):  
-    __init__(self, **kwargs):
-        pass
+    __init__(self, cycles_in_bar=5, bar_width=1./8., tex_nr_pix=2048, **kwargs):
+        self.tex = 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
