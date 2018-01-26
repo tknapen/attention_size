@@ -12,5 +12,16 @@
 	"row_spacing_factor":0.8,
 	"ecc_min":0.1,
 	"ecc_max":3.75,
+	"prf_checker_cycles_in_bar":5, 
+    "prf_checker_bar_width":0.125, 
+    "prf_checker_tex_nr_pix":2048, 
+    "prf_checker_flicker_frequency":6,
+    "prf_stim_sequence_angles":[-1, 0, -1, 45, 270, -1,  315, 180, -1,  135,   90, -1,  225, -1],
+    "prf_stim_barpass_duration":30,
+    "bg_stim_nr_rings":3, 
+    "bg_stim_ecc_min":0.1, 
+    "bg_stim_ecc_max":5, 
+    "bg_stim_nr_blob_rows_per_ring":24, 
+    "bg_stim_ow_spacing_factor":0.8
 
 }
