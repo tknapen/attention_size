@@ -111,7 +111,7 @@ class AttSizeBGStim(object):
             self.repopulate_condition_ring_colors(condition_nr=i, color_balance=0.5)
 
         # rings are easy, blobs are hard
-        self.rings = [psychopy.visual.Circle(self.session.screen, 
+        self.rings = [visual.Circle(self.session.screen, 
                                             radius=rows_ecc_in_deg[rp]*self.session.pixels_per_degree, 
                                             lineColor=[-1, -1, -1], 
                                             edges=256) for rp in ring_pos]
@@ -138,6 +138,11 @@ class AttSizeBGStim(object):
     def draw(self):
         self.element_array_stim.draw()
 
+    def draw_circles(self):
+        for ring in self.rings:
+            ring.draw()
+
+
 class PRFStim(object):  
     def __init__(self, session, 
                         cycles_in_bar=5, 
@@ -161,14 +166,13 @@ class PRFStim(object):
         self.sqr_tex[:,self.tex_nr_pix*(bar_width/2)+self.tex_nr_pix/2:] = 0
         self.sqr_tex[:,:-self.tex_nr_pix*(bar_width/2)+self.tex_nr_pix/2] = 0
 
-        #INITIALISE SOME STIMULI
         self.checkerboard = visual.GratingStim(self.session.screen, tex=self.sqr_tex, mask=None,
                           color=[1.0, 1.0, 1.0],
                           opacity=1.0,
                           size=(self.tex_nr_pix, self.tex_nr_pix),
                           ori=0)
 
-    def draw(time=0, period, orientation, position):
+    def draw(time=0, period, orientation):
         checkerboard_polarity = np.sign(np.sin(2*np.pi*time*self.flicker_frequency))
 
         self.checkerboard.setTex(self.sqr_tex*checkerboard_polarity)

@@ -12,7 +12,7 @@ class AttSizeTrial(Trial):
 
         self.ID = ti
 
-        phase_durations = [parameters['fixation_time'], parameters['target_time'], parameters['target_distractor_time'], parameters['target_post_time']]
+        phase_durations = [-0.0001, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
 
         super(
             STTrial,
@@ -22,26 +22,20 @@ class AttSizeTrial(Trial):
             **kwargs)
 
         self.parameters = parameters
+        # these are placeholders, to be filled in later
+        self.parameters['answer'] = -1
+        self.parameters['staircase_value'] = 0
+        self.parameters['correct'] = -1
 
     def draw(self, *args, **kwargs):
 
         # draw additional stimuli:
         if (self.phase == 0 ) * (self.ID == 0):
                 self.session.instruction.draw()
-        if self.phase == 0:
-            self.session.fixation.draw()
-        elif self.phase == 1:
-            # update fixation position
-            self.session.fixation.setPos((self.parameters['fix_x'], self.parameters['fix_y']))
-            self.session.fixation.draw()
-        elif self.phase == 2:
-           # update distractor position
-            self.session.distractor.setPos((self.parameters['distractor_x'], self.parameters['distractor_y']))
-            self.session.distractor.draw()
-            self.session.fixation.draw()
-        elif self.phase == 3:
-            self.session.fixation.draw()
-
+        self.session.fixation.draw()
+        self.session.draw_prf_stimulus()
+        if self.phase == 2:
+            self.session.bg_stim.draw()
         super(STTrial, self).draw()
 
     def event(self):
@@ -51,13 +45,22 @@ class AttSizeTrial(Trial):
                 if ev in ['esc', 'escape', 'q']:
                     self.events.append(
                         [-99, self.session.clock.getTime() - self.start_time])
-                    self.stopped = True
+                    self.stop()
                     self.session.stopped = True
                     print 'run canceled by user'
-                if ev in ['space', ' ']:
-                    if self.phase == 0:
+                if ev in ['space', ' ', 't']:
+                    if self.phase == 0 and self.ID == 0:
+                        self.session.start_time = self.session.clock.getTime()
                         self.phase_forward()
                     elif self.phase == 3:
-                        self.stopped = True
-
+                        self.stop()
+                if ev in list(self.session.answer_dictionary.keys()): # staircase answers
+                    if self.parameters['answer'] == -1: # only incorporate answer if not answered yet.
+                        self.parameters['staircase_value'] = self.session.staircase.get_intensity()
+                        self.parameters['answer'] = self.session.answer_dictionary[ev]
+                        self.parameters['correct'] = int(self.session.answer_dictionary[ev] == self.session.which_correct_answer)
+                        # incorporate answer
+                        self.session.staircase.answer(
+                            correct=self.parameters['correct']
+                            )
             super(STTrial, self).key_event(ev)

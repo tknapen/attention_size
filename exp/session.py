@@ -29,6 +29,9 @@ class AttSizeSession(EyelinkSession):
         self.config = config
         self.create_trials()
 
+        # dict that maps button keys to answers
+        self.answer_dictionary = {'b': 0, 'g': 1}
+
         self.stopped = False
 
     def create_stimuli(self):
@@ -77,7 +80,6 @@ class AttSizeSession(EyelinkSession):
         self.prf_bar_pass_times = np.cumsum(np.array([self.config['prf_stim_barpass_duration'] 
                                         for prf_ori in self.config['prf_stim_sequence_angles']]))
 
-
         ##################################################################################
         ## staircases
         ##################################################################################
@@ -107,18 +109,25 @@ class AttSizeSession(EyelinkSession):
             if ring == self.index_number: # this is the ring for which the answers are recorded
                 self.which_correct_answer = correct_answer_this_ring
 
+    def draw_prf_stimulus(self):
+        # only draw anything after the experiment has started
+        if self.run_time > 0:
+            # select the trial to be used
+            present_bar_pass = np.arange(len(self.prf_bar_pass_times))[(self.prf_bar_pass_times - self.run_time)>0]-1
+            prf_orientation = self.config['prf_stim_sequence_angles'][present_bar_pass]
+            prf_time = self.prf_bar_pass_times[present_bar_pass] - self.run_time
+            self.prf_stim.draw( time=prf_time, 
+                                period=self.config['prf_stim_barpass_duration'], 
+                                orientation=prf_orientation)
 
     def run(self):
         """run the session"""
         # cycle through trials
 
-        for ti in range(self.config['n_trials']):
+        ti = 0
+        while not self.stopped:
 
-
-            parameters.update(self.config)
-
-            if ti == 0:
-                parameters['fixation_time'] = 30.0
+            parameters = copy.copy(self.config)
 
             trial = AttSizeTrial(ti=ti,
                            config=self.config,
@@ -127,6 +136,7 @@ class AttSizeSession(EyelinkSession):
                            parameters=parameters,
                            tracker=self.tracker)
             trial.run()
+            ti += 1
 
             if self.stopped == True:
                 break
