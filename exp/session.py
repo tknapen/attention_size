@@ -71,11 +71,41 @@ class AttSizeSession(EyelinkSession):
         """creates trials by setting up staircases for background task, and prf stimulus sequence"""
 
         ##################################################################################
-        ##
+        ## timings etc for the bar passes
         ##################################################################################
 
-        for 
+        self.prf_bar_pass_times = np.cumsum(np.array([self.config['prf_stim_barpass_duration'] 
+                                        for prf_ori in self.config['prf_stim_sequence_angles']]))
 
+
+        ##################################################################################
+        ## staircases
+        ##################################################################################
+
+        self.staircase_file = os.path.join('data', self.initials + '_' + str(index_number) + '.pkl')
+        if os.path.isfile(self.staircase_file):
+            with open(self.staircase_file, 'a') as f:
+                self.staircase = pickle.load(f)
+        else:
+            self.staircase = ThreeUpOneDownStaircase(initial_value=self.config['staircase_initial_value'], 
+                                                initial_stepsize=self.config['staircase_initial_value']/4.0, 
+                                                nr_reversals = 3000, 
+                                                increment_value = self.config['staircase_initial_value']/4.0, 
+                                                stepsize_multiplication_on_reversal = 0.9, 
+                                                max_nr_trials = 12000 , 
+                                                min_test_val = None, 
+                                                max_test_val = 0.5)
+
+    def set_background_stimulus_values(self):
+        this_intensity = self.staircase.get_intensity()
+
+        for ring in np.arange(self.config['nr_ring_conditions']):
+            correct_answer_this_ring = np.random.randint(2,1)
+            this_ring_color_balance = 0.5 + ((correct_answer_this_ring*2)-1) * this_intensity
+            self.bg_stim.repopulate_condition_ring_colors(condition_nr=ring,
+                                                            color_balance=this_ring_color_balance)
+            if ring == self.index_number: # this is the ring for which the answers are recorded
+                self.which_correct_answer = correct_answer_this_ring
 
 
     def run(self):
@@ -84,14 +114,6 @@ class AttSizeSession(EyelinkSession):
 
         for ti in range(self.config['n_trials']):
 
-            parameters = {
-                'fix_x': self.trial_saccade_target_positions[ti,0],
-                'fix_y': self.trial_saccade_target_positions[ti,1],
-                'distractor_x': self.trial_distractor_positions[ti,0],
-                'distractor_y': self.trial_distractor_positions[ti,1],
-                'saccade_direction': self.saccade_distractor_directions[ti,0],
-                'distractor_direction': self.saccade_distractor_directions[ti,1],
-            }
 
             parameters.update(self.config)
 

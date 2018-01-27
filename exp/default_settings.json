@@ -22,6 +22,7 @@
     "bg_stim_ecc_min":0.1, 
     "bg_stim_ecc_max":5, 
     "bg_stim_nr_blob_rows_per_ring":24, 
-    "bg_stim_ow_spacing_factor":0.8
+    "bg_stim_ow_spacing_factor":0.8,
+    "staircase_initial_value": 0.25,
 
 }
