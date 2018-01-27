@@ -15,7 +15,7 @@ def main():
         #tracker_on = False
 
     # initials = 'tk'
-    run = 1
+    run = 0
     appnope.nope()
 
     ts = AttSizeSession(subject_initials=initials, index_number=run, tracker_on=False)

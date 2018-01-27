@@ -10,7 +10,7 @@ import exptools
 import json
 import glob
 
-from session import AttSizeSession
+# from session import AttSizeSession
 
 
 def ecc_deg_2_mm(eps, lmb=1.2, eps0=1.0):
@@ -24,18 +24,18 @@ def ecc_mm_2_deg(X, lmb=1.2, eps0=1.0):
 
 # Polarcoordinate function
 def pol2cart(rho, phi):
-    x = rho * math.cos(phi)
-    y = rho * math.sin(phi)
+    x = rho * cos(phi)
+    y = rho * sin(phi)
     return(x, y)
 
 
 # Calculate arc of blob, related to circle radius
 def line2arc(radius,distance):
-     return 2*radius*math.asin(distance/(2*radius))
+     return 2*radius*asin(distance/(2*radius))
 
 
 def PointsInCircum(r,n):
-    return [(math.cos(2*math.pi/n*x)*r,math.sin(2*math.pi/n*x)*r) for x in xrange(0,n+1)]
+    return [(cos(2*pi/n*x)*r,sin(2*pi/n*x)*r) for x in xrange(0,n+1)]
 
 
 # Math thingy for substracting lists from lists
@@ -73,6 +73,8 @@ class AttSizeBGStim(object):
                 nr_blob_rows_per_ring=24, 
                 row_spacing_factor=0.8, **kwargs):
         
+        self.session = session
+
         total_nr_rows = nr_rings*(nr_blob_rows_per_ring+1)+1
 
         ecc_min_mm, ecc_max_mm = ecc_deg_2_mm(ecc_min), ecc_deg_2_mm(ecc_max)
@@ -90,14 +92,19 @@ class AttSizeBGStim(object):
 
         element_array_np = []
         ring_nr = 0
-        for ecc, bpr, s in zip(rows_ecc_in_deg[2:], nr_blobs_per_ring[1:], blob_row_blob_sizes[1:]):
-            if ring_nr in ring_pos:
-                continue
-            ring_condition = floor(nr_rings * total_nr_rows / ring_nr)
-            for pa in np.linspace(0, 2*np.pi,bpr):
-                x, y = pol2cart(ecc, pa)
-                element_array_np.append([x, y, ecc, pa, s, 0, 0, 0, ring_nr, ring_condition])
+        for ecc, bpr, s in zip(rows_ecc_in_deg[:], nr_blobs_per_ring[:], blob_row_blob_sizes[:]):
+            if not ring_nr in ring_pos:            
+                ring_condition = floor(nr_rings * ring_nr/total_nr_rows)
+                for pa in np.linspace(0, 2*np.pi, bpr, endpoint=False):
+                    x, y = pol2cart(ecc, pa)
+                    element_array_np.append([self.session.pixels_per_degree*x, 
+                                            self.session.pixels_per_degree*y, 
+                                            ecc, 
+                                            pa, 
+                                            self.session.pixels_per_degree*s,
+                                            1, 1, 1, 0.2, ring_nr, ring_condition])
             ring_nr += 1
+
         self.element_array_np = np.array(element_array_np)
 
         self.element_array_stim = visual.ElementArrayStim(self.session.screen, 
@@ -106,6 +113,7 @@ class AttSizeBGStim(object):
                                                     nElements=self.element_array_np.shape[0], 
                                                     sizes=self.element_array_np[:,4], 
                                                     sfs=0, 
+                                                    opacities=0.2,
                                                     xys=self.element_array_np[:,[0,1]])
         for i in range(nr_rings):
             self.repopulate_condition_ring_colors(condition_nr=i, color_balance=0.5)
@@ -128,6 +136,8 @@ class AttSizeBGStim(object):
         self.element_array_np[this_ring_bool, 5] = ordered_signals
         self.element_array_np[this_ring_bool, 6] = -ordered_signals
 
+        self.insert_parameters_into_stim()
+
     def insert_parameters_into_stim(self):
         self.element_array_stim.setColors(self.element_array_np[:,[5,6,7]], log=False)
         self.element_array_stim.setXYs(self.element_array_np[:,[0,1]], log=False)
@@ -137,6 +147,7 @@ class AttSizeBGStim(object):
 
     def draw(self):
         self.element_array_stim.draw()
+        # self.draw_circles()
 
     def draw_circles(self):
         for ring in self.rings:
@@ -166,20 +177,26 @@ class PRFStim(object):
         self.sqr_tex[:,self.tex_nr_pix*(bar_width/2)+self.tex_nr_pix/2:] = 0
         self.sqr_tex[:,:-self.tex_nr_pix*(bar_width/2)+self.tex_nr_pix/2] = 0
 
-        self.checkerboard = visual.GratingStim(self.session.screen, tex=self.sqr_tex, mask=None,
+        self.checkerboard_1 = visual.GratingStim(self.session.screen, tex=self.sqr_tex, mask=None,
                           color=[1.0, 1.0, 1.0],
                           opacity=1.0,
-                          size=(self.tex_nr_pix, self.tex_nr_pix),
+                          size=(self.session.screen.size[1], self.session.screen.size[1]),
+                          ori=0)
+        self.checkerboard_2 = visual.GratingStim(self.session.screen, tex=-self.sqr_tex, mask=None,
+                          color=[1.0, 1.0, 1.0],
+                          opacity=1.0,
+                          size=(self.session.screen.size[1], self.session.screen.size[1]),
                           ori=0)
 
-    def draw(time=0, period, orientation):
-        checkerboard_polarity = np.sign(np.sin(2*np.pi*time*self.flicker_frequency))
-
-        self.checkerboard.setTex(self.sqr_tex*checkerboard_polarity)
-        self.checkerboard.setPos([-self.tex_nr_pix/2 + int(0.5+time)*self.tex_nr_pix/period, 0])
-        self.checkerboard.setOri(orientation)
-
-        self.checkerboard.draw()
+    def draw(self, time, period, orientation):
+        if np.sin(2*np.pi*time*self.flicker_frequency) > 0:
+            self.checkerboard_1.setOri(orientation)
+            self.checkerboard_1.setPos([-self.tex_nr_pix/2 + int(0.5+time)*self.tex_nr_pix/period, 0])
+            self.checkerboard_1.draw()
+        else:
+            self.checkerboard_2.setOri(orientation)
+            self.checkerboard_2.setPos([-self.tex_nr_pix/2 + int(0.5+time)*self.tex_nr_pix/period, 0])
+            self.checkerboard_2.draw()
 
 
 

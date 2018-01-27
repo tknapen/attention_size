@@ -4,6 +4,7 @@ import sympy as sym
 import os
 import json
 import glob
+import copy
 
 import exptools
 from exptools.core.session import EyelinkSession
@@ -27,11 +28,13 @@ class AttSizeSession(EyelinkSession):
             config = json.load(config_file)
 
         self.config = config
+        self.create_stimuli()
         self.create_trials()
 
         # dict that maps button keys to answers
         self.answer_dictionary = {'b': 0, 'g': 1}
 
+        self.run_time = -1
         self.stopped = False
 
     def create_stimuli(self):
@@ -77,14 +80,14 @@ class AttSizeSession(EyelinkSession):
         ## timings etc for the bar passes
         ##################################################################################
 
-        self.prf_bar_pass_times = np.cumsum(np.array([self.config['prf_stim_barpass_duration'] 
-                                        for prf_ori in self.config['prf_stim_sequence_angles']]))
-
+        self.prf_bar_pass_times = np.r_[0,np.cumsum(np.array([self.config['prf_stim_barpass_duration'] 
+                                        for prf_ori in self.config['prf_stim_sequence_angles']]))]
+        print(self.prf_bar_pass_times)
         ##################################################################################
         ## staircases
         ##################################################################################
 
-        self.staircase_file = os.path.join('data', self.initials + '_' + str(index_number) + '.pkl')
+        self.staircase_file = os.path.join('data', self.subject_initials + '_' + str(self.index_number) + '.pkl')
         if os.path.isfile(self.staircase_file):
             with open(self.staircase_file, 'a') as f:
                 self.staircase = pickle.load(f)
@@ -97,28 +100,31 @@ class AttSizeSession(EyelinkSession):
                                                 max_nr_trials = 12000 , 
                                                 min_test_val = None, 
                                                 max_test_val = 0.5)
+        self.set_background_stimulus_values()
 
     def set_background_stimulus_values(self):
         this_intensity = self.staircase.get_intensity()
 
-        for ring in np.arange(self.config['nr_ring_conditions']):
-            correct_answer_this_ring = np.random.randint(2,1)
+        for ring in np.arange(self.config['bg_stim_nr_rings']):
+            correct_answer_this_ring = np.random.randint(0,2)
             this_ring_color_balance = 0.5 + ((correct_answer_this_ring*2)-1) * this_intensity
             self.bg_stim.repopulate_condition_ring_colors(condition_nr=ring,
                                                             color_balance=this_ring_color_balance)
             if ring == self.index_number: # this is the ring for which the answers are recorded
                 self.which_correct_answer = correct_answer_this_ring
+                self.signal_ring_color_balance = this_ring_color_balance
 
     def draw_prf_stimulus(self):
         # only draw anything after the experiment has started
         if self.run_time > 0:
-            # select the trial to be used
-            present_bar_pass = np.arange(len(self.prf_bar_pass_times))[(self.prf_bar_pass_times - self.run_time)>0]-1
-            prf_orientation = self.config['prf_stim_sequence_angles'][present_bar_pass]
-            prf_time = self.prf_bar_pass_times[present_bar_pass] - self.run_time
-            self.prf_stim.draw( time=prf_time, 
+            present_time = self.clock.getTime() - self.run_time
+            present_bar_pass = np.arange(len(self.prf_bar_pass_times))[(self.prf_bar_pass_times - present_time)>0][0]-1
+            prf_time = present_time - self.prf_bar_pass_times[present_bar_pass]
+            print(present_time, present_bar_pass, prf_time)
+            if self.config['prf_stim_sequence_angles'][present_bar_pass] != -1:
+                self.prf_stim.draw(time=prf_time, 
                                 period=self.config['prf_stim_barpass_duration'], 
-                                orientation=prf_orientation)
+                                orientation=self.config['prf_stim_sequence_angles'][present_bar_pass])
 
     def run(self):
         """run the session"""

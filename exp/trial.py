@@ -12,10 +12,13 @@ class AttSizeTrial(Trial):
 
         self.ID = ti
 
-        phase_durations = [-0.0001, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
+        if self.ID == 0:
+            phase_durations = [180, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
+        else:
+            phase_durations = [-0.0001, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
 
         super(
-            STTrial,
+            AttSizeTrial,
             self).__init__(
             phase_durations=phase_durations,
             *args,
@@ -27,6 +30,8 @@ class AttSizeTrial(Trial):
         self.parameters['staircase_value'] = 0
         self.parameters['correct'] = -1
 
+        self.session.set_background_stimulus_values()
+
     def draw(self, *args, **kwargs):
 
         # draw additional stimuli:
@@ -34,9 +39,10 @@ class AttSizeTrial(Trial):
                 self.session.instruction.draw()
         self.session.fixation.draw()
         self.session.draw_prf_stimulus()
+        self.session.bg_stim.draw_circles()
         if self.phase == 2:
             self.session.bg_stim.draw()
-        super(STTrial, self).draw()
+        super(AttSizeTrial, self).draw()
 
     def event(self):
 
@@ -50,7 +56,7 @@ class AttSizeTrial(Trial):
                     print 'run canceled by user'
                 if ev in ['space', ' ', 't']:
                     if self.phase == 0 and self.ID == 0:
-                        self.session.start_time = self.session.clock.getTime()
+                        self.session.run_time = self.session.clock.getTime()
                         self.phase_forward()
                     elif self.phase == 3:
                         self.stop()
@@ -63,4 +69,4 @@ class AttSizeTrial(Trial):
                         self.session.staircase.answer(
                             correct=self.parameters['correct']
                             )
-            super(STTrial, self).key_event(ev)
+            super(AttSizeTrial, self).key_event(ev)
