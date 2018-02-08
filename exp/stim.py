@@ -9,6 +9,7 @@ import os
 import exptools
 import json
 import glob
+from scipy import ndimage
 
 # from session import AttSizeSession
 
@@ -152,6 +153,33 @@ class AttSizeBGStim(object):
     def draw_circles(self):
         for ring in self.rings:
             ring.draw()
+
+
+class AttSizeBGPixelFest(object):
+    def __init__(self, 
+                session, 
+                tex_size=2048, 
+                n_separate_textures=12, **kwargs):
+
+        self.session = session
+        self.tex_size = tex_size
+        self.n_separate_textures = n_separate_textures
+
+
+    def create_texture(self, tex_size):
+
+        bits = np.random.randn(tex_size, tex_size)
+        texture = np.zeros((tex_size, tex_size))
+
+        # loop over different scales
+        for scale in range(int(np.log2(tex_size))):
+            this_scale_pixels = int(tex_size*1.0/(2**scale))
+            # scaled_texture = ndimage.zoom(bits, zoom=scale+1)
+            scaled_texture = np.repeat(np.repeat(bits[0:this_scale_pixels, 0:this_scale_pixels], 2**scale, axis=0), 2**scale, axis=1)
+            scaled_texture = ndimage.gaussian_filter(scaled_texture, 2**scale)
+            texture += (scale+1) * scaled_texture
+
+        return texture
 
 
 class PRFStim(object):  
