@@ -174,8 +174,10 @@ class PRFStim(object):
 
         tex_x, tex_y = np.meshgrid(pixels_ls, pixels_ls)
         self.sqr_tex = np.sign(np.sin(tex_x) * np.sin(tex_y))
-        self.sqr_tex[:,self.tex_nr_pix*(bar_width/2)+self.tex_nr_pix/2:] = 0
-        self.sqr_tex[:,:-self.tex_nr_pix*(bar_width/2)+self.tex_nr_pix/2] = 0
+
+        self.sqr_tex[:,int(self.tex_nr_pix*(bar_width/2)+self.tex_nr_pix/2):] = 0
+        self.sqr_tex[:,:int(-self.tex_nr_pix*(bar_width/2)+self.tex_nr_pix/2)] = 0
+
 
         self.checkerboard_1 = visual.GratingStim(self.session.screen, tex=self.sqr_tex, mask=None,
                           color=[1.0, 1.0, 1.0],
