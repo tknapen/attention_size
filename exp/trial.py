@@ -42,6 +42,7 @@ class AttSizeTrial(Trial):
         self.session.bg_stim.draw_circles()
         if self.phase == 2:
             self.session.bg_stim.draw()
+        self.session.mask_stim.draw()
         super(AttSizeTrial, self).draw()
 
     def event(self):

@@ -1,10 +1,12 @@
 from psychopy import visual, clock
+from psychopy import filters
 import numpy as np
 import sympy as sym
 import os
 import json
 import glob
 import copy
+import scipy
 
 import exptools
 from exptools.core.session import EyelinkSession
@@ -72,6 +74,19 @@ class AttSizeSession(EyelinkSession):
             color=(1,0,0))
         self.instruction.setSize((1200,50))
 
+        mask = filters.makeMask(matrixSize=self.screen_pix_size[0], 
+                                shape='raisedCosine', 
+                                radius=self.config['aperture_max_eccen'], 
+                                # center=(0.0, 0.0), 
+                                # range=[1, -1], 
+                                fringeWidth=self.config['aperture_sd']
+                                )
+        self.mask_stim = visual.PatchStim(self.screen, 
+                                        mask=-mask, 
+                                        tex=None, 
+                                        size=[self.screen_pix_size[0],self.screen_pix_size[0]], 
+                                        pos = np.array((0.0,0.0)), 
+                                        color = self.screen.background_color) 
 
     def create_trials(self):
         """creates trials by setting up staircases for background task, and prf stimulus sequence"""
@@ -97,7 +112,7 @@ class AttSizeSession(EyelinkSession):
                                                 nr_reversals = 3000, 
                                                 increment_value = self.config['staircase_initial_value']/4.0, 
                                                 stepsize_multiplication_on_reversal = 0.9, 
-                                                max_nr_trials = 12000 , 
+                                                max_nr_trials = 12000, 
                                                 min_test_val = None, 
                                                 max_test_val = 0.5)
         self.set_background_stimulus_values()
@@ -120,7 +135,7 @@ class AttSizeSession(EyelinkSession):
             present_time = self.clock.getTime() - self.run_time
             present_bar_pass = np.arange(len(self.prf_bar_pass_times))[(self.prf_bar_pass_times - present_time)>0][0]-1
             prf_time = present_time - self.prf_bar_pass_times[present_bar_pass]
-            print(present_time, present_bar_pass, prf_time)
+            # print(present_time, present_bar_pass, prf_time)
             if self.config['prf_stim_sequence_angles'][present_bar_pass] != -1:
                 self.prf_stim.draw(time=prf_time, 
                                 period=self.config['prf_stim_barpass_duration'], 
