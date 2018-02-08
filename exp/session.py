@@ -51,7 +51,8 @@ class AttSizeSession(EyelinkSession):
                         cycles_in_bar=self.config['prf_checker_cycles_in_bar'], 
                         bar_width=self.config['prf_checker_bar_width'],
                         tex_nr_pix=self.config['prf_checker_tex_nr_pix'],
-                        flicker_frequency=self.config['prf_checker_flicker_frequency'])
+                        flicker_frequency=self.config['prf_checker_flicker_frequency'],
+                        max_eccentricity=self.config['bg_stim_ecc_max']*self.pixels_per_degree)
 
         size_fixation_pix = self.deg2pix(self.config['size_fixation_deg'])
         self.fixation = visual.GratingStim(self.screen,
@@ -95,7 +96,7 @@ class AttSizeSession(EyelinkSession):
         ## timings etc for the bar passes
         ##################################################################################
 
-        self.prf_bar_pass_times = np.r_[0,np.cumsum(np.array([self.config['prf_stim_barpass_duration'] 
+        self.prf_bar_pass_times = np.r_[0,np.cumsum(np.array([self.config['prf_stim_barpass_duration']*self.config['TR'] 
                                         for prf_ori in self.config['prf_stim_sequence_angles']]))]
         print(self.prf_bar_pass_times)
         ##################################################################################
@@ -137,9 +138,10 @@ class AttSizeSession(EyelinkSession):
             prf_time = present_time - self.prf_bar_pass_times[present_bar_pass]
             # print(present_time, present_bar_pass, prf_time)
             if self.config['prf_stim_sequence_angles'][present_bar_pass] != -1:
-                self.prf_stim.draw(time=prf_time, 
+                self.prf_stim.draw(time=prf_time/self.config['TR'], 
                                 period=self.config['prf_stim_barpass_duration'], 
-                                orientation=self.config['prf_stim_sequence_angles'][present_bar_pass])
+                                orientation=self.config['prf_stim_sequence_angles'][present_bar_pass],
+                                position_scaling=1+self.config["prf_checker_bar_width"])
 
     def run(self):
         """run the session"""

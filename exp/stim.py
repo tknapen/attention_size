@@ -160,12 +160,14 @@ class PRFStim(object):
                         bar_width=1./8., 
                         tex_nr_pix=2048, 
                         flicker_frequency=6, 
+                        max_eccentricity=512,
                         **kwargs):
         self.session = session
         self.cycles_in_bar = cycles_in_bar
         self.bar_width = bar_width
         self.tex_nr_pix = tex_nr_pix
         self.flicker_frequency = flicker_frequency
+        self.max_eccentricity = max_eccentricity
 
         bar_width_in_pixels = self.tex_nr_pix*self.bar_width
         bar_width_in_radians = 2*np.pi*self.cycles_in_bar
@@ -190,14 +192,19 @@ class PRFStim(object):
                           size=(self.session.screen.size[1], self.session.screen.size[1]),
                           ori=0)
 
-    def draw(self, time, period, orientation):
+    def draw(self, time, period, orientation, position_scaling):
+
+        pos_in_ori = position_scaling * (-0.5 + int(0.5+time)/period) * self.max_eccentricity * 2
+
+        x_pos, y_pos = cos((2.0*pi)*-orientation/360.0)*pos_in_ori, sin((2.0*pi)*-orientation/360.0)*pos_in_ori
+
         if np.sin(2*np.pi*time*self.flicker_frequency) > 0:
+            self.checkerboard_1.setPos([x_pos, y_pos])
             self.checkerboard_1.setOri(orientation)
-            self.checkerboard_1.setPos([-self.tex_nr_pix/2 + int(0.5+time)*self.tex_nr_pix/period, 0])
             self.checkerboard_1.draw()
         else:
+            self.checkerboard_2.setPos([x_pos, y_pos])
             self.checkerboard_2.setOri(orientation)
-            self.checkerboard_2.setPos([-self.tex_nr_pix/2 + int(0.5+time)*self.tex_nr_pix/period, 0])
             self.checkerboard_2.draw()
 
 
