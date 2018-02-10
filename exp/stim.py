@@ -159,27 +159,60 @@ class AttSizeBGPixelFest(object):
     def __init__(self, 
                 session, 
                 tex_size=2048, 
-                n_separate_textures=12, **kwargs):
+                amplitude_exponent=2, 
+                n_textures=24,
+                **kwargs):
 
         self.session = session
         self.tex_size = tex_size
-        self.n_separate_textures = n_separate_textures
+        self.amplitude_exponent = amplitude_exponent
+        self.n_textures = n_textures
+
+        self.basic_textures = self.create_basic_textures(self.tex_size,
+                                    self.amplitude_exponent,
+                                    self.n_textures)
 
 
-    def create_texture(self, tex_size):
+    def create_basic_textures(self, tex_size, amplitude_exponent, n_textures):
+        t2 = int(tex_size/2)
+        X,Y = np.meshgrid(np.linspace(-t2,t2,tex_size,endpoint=True),
+                        np.linspace(-t2,t2,tex_size,endpoint=True))
+        ecc = np.sqrt(X**2 + Y**2)
+        ampl_spectrum = np.fft.fftshift(ecc**-amplitude_exponent, (0,1))
+        phases = np.random.randn(n_textures, tex_size, tex_size) * 2 * np.pi
+        textures = np.zeros((n_textures, tex_size, tex_size))
+        # loop over different textures
+        for nt in range(n_textures):
+            compl_f = ampl_spectrum * np.sin(phases[nt]) + 1j * ampl_spectrum * np.cos(phases[nt])
+            textures[nt] = np.fft.ifft2(compl_f).real
+            # center at zero
+            textures[nt] -= textures[nt].mean()
+            # scale to be within [-1,1]
+            textures[nt] /= textures[nt].std()*3.333
 
-        bits = np.random.randn(tex_size, tex_size)
-        texture = np.zeros((tex_size, tex_size))
+        return textures
 
-        # loop over different scales
-        for scale in range(int(np.log2(tex_size))):
-            this_scale_pixels = int(tex_size*1.0/(2**scale))
-            # scaled_texture = ndimage.zoom(bits, zoom=scale+1)
-            scaled_texture = np.repeat(np.repeat(bits[0:this_scale_pixels, 0:this_scale_pixels], 2**scale, axis=0), 2**scale, axis=1)
-            scaled_texture = ndimage.gaussian_filter(scaled_texture, 2**scale)
-            texture += (scale+1) * scaled_texture
+    def recalculate_stim(self, red_gain=0, green_gain=0, blue_gain=0, mask_stim=None):
+        which_textures = np.random.choice(self.n_textures, 3, replace=False)
+        orientation = np.random.choice([0,90,180,270], 1)
 
-        return texture
+        if mask_stim == None:
+            mask_stim = self.session.mask_stim
+
+        tex = np.array((red_gain*self.basic_textures[which_textures[0]], 
+                        green_gain*self.basic_textures[which_textures[1]],
+                        blue_gain*self.basic_textures[which_textures[2]])).T
+
+        self.noise_fest_stim = visual.GratingStim(self.session.screen, tex=tex, 
+                                mask=mask_stim,
+                                color=[1.0, 1.0, 1.0],
+                                opacity=1.0,
+                                size=(self.session.screen.size[1], self.session.screen.size[1]),
+                                ori=orientation)
+
+    def draw(self):
+        self.noise_fest_stim.draw()
+
 
 
 class PRFStim(object):  
