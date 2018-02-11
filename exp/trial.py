@@ -37,12 +37,12 @@ class AttSizeTrial(Trial):
         # draw additional stimuli:
         if (self.phase == 0 ) * (self.ID == 0):
                 self.session.instruction.draw()
-        self.session.fixation.draw()
         self.session.draw_prf_stimulus()
         if self.phase == 2:
             self.session.bg_stim.draw()
         self.session.mask_stim.draw()
-        self.session.bg_stim.draw_circles()
+        # self.session.bg_stim.draw_circles()
+        self.session.fixation.draw()
         super(AttSizeTrial, self).draw()
 
     def event(self):

@@ -72,10 +72,12 @@ class AttSizeBGStim(object):
                 ecc_min=0.1, 
                 ecc_max=5, 
                 nr_blob_rows_per_ring=24, 
-                row_spacing_factor=0.8, **kwargs):
+                row_spacing_factor=0.8, 
+                opacity=0.125,
+                **kwargs):
         
         self.session = session
-
+        self.opacity = opacity
         total_nr_rows = nr_rings*(nr_blob_rows_per_ring+1)+1
 
         ecc_min_mm, ecc_max_mm = ecc_deg_2_mm(ecc_min), ecc_deg_2_mm(ecc_max)
@@ -114,7 +116,7 @@ class AttSizeBGStim(object):
                                                     nElements=self.element_array_np.shape[0], 
                                                     sizes=self.element_array_np[:,4], 
                                                     sfs=0, 
-                                                    opacities=0.2,
+                                                    opacities=self.opacity,
                                                     xys=self.element_array_np[:,[0,1]])
         for i in range(nr_rings):
             self.repopulate_condition_ring_colors(condition_nr=i, color_balance=0.5)
@@ -161,16 +163,21 @@ class AttSizeBGPixelFest(object):
                 tex_size=2048, 
                 amplitude_exponent=2, 
                 n_textures=24,
+                opacity=0.125,
                 **kwargs):
 
         self.session = session
         self.tex_size = tex_size
         self.amplitude_exponent = amplitude_exponent
         self.n_textures = n_textures
+        self.opacity = opacity
 
         self.basic_textures = self.create_basic_textures(self.tex_size,
                                     self.amplitude_exponent,
                                     self.n_textures)
+
+        # and make sure there is something to draw even before we get going.
+        self.recalculate_stim()
 
 
     def create_basic_textures(self, tex_size, amplitude_exponent, n_textures):
@@ -187,26 +194,28 @@ class AttSizeBGPixelFest(object):
             textures[nt] = np.fft.ifft2(compl_f).real
             # center at zero
             textures[nt] -= textures[nt].mean()
-            # scale to be within [-1,1]
+            # scale and clip to be within [-1,1]
             textures[nt] /= textures[nt].std()*3.333
+            textures[nt][textures[nt]<-1] = -1
+            textures[nt][textures[nt]>1] = 1
 
         return textures
 
-    def recalculate_stim(self, red_gain=0, green_gain=0, blue_gain=0, mask_stim=None):
+    def recalculate_stim(self, red_gain=1, green_gain=1, blue_gain=0, opacity=None):
         which_textures = np.random.choice(self.n_textures, 3, replace=False)
         orientation = np.random.choice([0,90,180,270], 1)
 
-        if mask_stim == None:
-            mask_stim = self.session.mask_stim
+        if opacity == None:
+            opacity = self.opacity
 
-        tex = np.array((red_gain*self.basic_textures[which_textures[0]], 
-                        green_gain*self.basic_textures[which_textures[1]],
-                        blue_gain*self.basic_textures[which_textures[2]])).T
+        tex = np.zeros((int(self.tex_size), int(self.tex_size), 4))
+        tex[:,:,0] = red_gain*self.basic_textures[which_textures[0]]
+        tex[:,:,1] = green_gain*self.basic_textures[which_textures[1]]
+        tex[:,:,2] = blue_gain*self.basic_textures[which_textures[2]]
+        tex[:,:,3] = opacity * np.ones(self.basic_textures[0].shape)
 
-        self.noise_fest_stim = visual.GratingStim(self.session.screen, tex=tex, 
-                                mask=mask_stim,
-                                color=[1.0, 1.0, 1.0],
-                                opacity=1.0,
+        self.noise_fest_stim = visual.GratingStim(self.session.screen, 
+                                tex=tex, 
                                 size=(self.session.screen.size[1], self.session.screen.size[1]),
                                 ori=orientation)
 
