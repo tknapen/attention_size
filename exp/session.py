@@ -61,12 +61,12 @@ class AttSizeSession(EyelinkSession):
         
         if self.index_number == 0:
             this_instruction_string = """Fixate in the center of the screen. 
-            Your task is to judge whether the fixation marker 
-            is more red or more green on every stimulus presentation. """
+Your task is to judge whether the fixation marker 
+is more red or more green on every stimulus presentation. """
         elif self.index_number == 1:
             this_instruction_string = """Fixate in the center of the screen.  
-            Your task is to judge whether the background 
-            is more red or more green on every stimulus presentation. """
+Your task is to judge whether the background 
+is more red or more green on every stimulus presentation. """
         self.instruction = visual.TextStim(self.screen, 
             text = this_instruction_string, 
             font = 'Helvetica Neue',
@@ -113,8 +113,8 @@ class AttSizeSession(EyelinkSession):
         ## timings etc for the bar passes
         ##################################################################################
 
-        self.prf_bar_pass_times = np.r_[0,np.cumsum(np.array([self.config['prf_stim_barpass_duration']*self.config['TR'] 
-                                        for prf_ori in self.config['prf_stim_sequence_angles']]))]
+        self.prf_bar_pass_times = np.r_[0, np.cumsum(np.array([self.config['prf_stim_barpass_duration']*self.config['TR'] 
+                                        for prf_ori in self.config['prf_stim_sequence_angles']])), 1e7]
         ##################################################################################
         ## staircases
         ##################################################################################
@@ -149,9 +149,9 @@ class AttSizeSession(EyelinkSession):
         elif self.config['bg_which_stimulus_type'] == 1: # 1/f noise
             self.which_correct_answer = np.random.randint(0,2)
             answer_sign = (self.which_correct_answer*2)-1
-            self.bg_stim.recalculate_stim(  red_gain=this_intensity*answer_sign,
-                                            green_gain=this_intensity*-answer_sign, 
-                                            blue_gain=0)
+            self.bg_stim.recalculate_stim(  red_boost=this_intensity*answer_sign,
+                                            green_boost=this_intensity*-answer_sign, 
+                                            blue_boost=0)
             self.signal_ring_color_balance = self.index_number
 
         print('bg stim: ca %i, int %f '%(self.which_correct_answer, this_intensity))

@@ -195,13 +195,14 @@ class AttSizeBGPixelFest(object):
             # center at zero
             textures[nt] -= textures[nt].mean()
             # scale and clip to be within [-1,1]
-            textures[nt] /= textures[nt].std()*3.333
-            textures[nt][textures[nt]<-1] = -1
+            textures[nt] /= textures[nt].std()*6.666
+            textures[nt] += 0.5
+            textures[nt][textures[nt]<0] = 0
             textures[nt][textures[nt]>1] = 1
 
         return textures
 
-    def recalculate_stim(self, red_gain=1, green_gain=1, blue_gain=0, opacity=None):
+    def recalculate_stim(self, red_boost=1, green_boost=1, blue_boost=0, opacity=None):
         which_textures = np.random.choice(self.n_textures, 3, replace=False)
         orientation = np.random.choice([0,90,180,270], 1)
 
@@ -209,10 +210,12 @@ class AttSizeBGPixelFest(object):
             opacity = self.opacity
 
         tex = np.zeros((int(self.tex_size), int(self.tex_size), 4))
-        tex[:,:,0] = red_gain*self.basic_textures[which_textures[0]]
-        tex[:,:,1] = green_gain*self.basic_textures[which_textures[1]]
-        tex[:,:,2] = blue_gain*self.basic_textures[which_textures[2]]
+        tex[:,:,0] = red_boost + self.basic_textures[which_textures[0]]
+        tex[:,:,1] = green_boost + self.basic_textures[which_textures[1]]
+        tex[:,:,2] = blue_boost + self.basic_textures[which_textures[2]]
         tex[:,:,3] = opacity * np.ones(self.basic_textures[0].shape)
+
+        tex[tex>1] = 1
 
         self.noise_fest_stim = visual.GratingStim(self.session.screen, 
                                 tex=tex, 
