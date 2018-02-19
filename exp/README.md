@@ -10,8 +10,7 @@ In the terminal, go to this folder. Then type ```python main.py <INITIALS>```, r
     * *Store staircases in a dictionary to be pickled?*
 3. The spatial frequency content of the bg and fix stimuli need to be titrated to ensure global/local attentional focus. 
 4. Also, the opacity of the background stimulus needs to be set.
-5. Similarly, the size of the fixation mark and 'safety zone' need to be set, and to do this we need to:
-6. Merge fixation mark work by JdJ with master branch with 1/f stimuli.
+5. Fixation apperture was added for safety zone, but minor change required for showing instruction text 
 7. Test outputs; can we reconstruct the entire staircase from the outputs in the pickle and edf files?
 
 
