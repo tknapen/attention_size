@@ -81,7 +81,7 @@ is more red or more green on every stimulus presentation. """
                                 shape='raisedCosine', 
                                 radius=self.config['aperture_max_eccen'], 
                                 # center=(0.0, 0.0), 
-                                # range=[1, -1], 
+                                range=[-1, 1], 
                                 fringeWidth=self.config['aperture_sd']
                                 )
         self.mask_stim = visual.PatchStim(self.screen, 
@@ -91,6 +91,28 @@ is more red or more green on every stimulus presentation. """
                                         pos = np.array((0.0,0.0)), 
                                         color = self.screen.background_color) 
 
+
+        ############################################################################
+        # Aperture mask to keep fixation small stim free of prf stim
+        ############################################################################
+        fixation_app = filters.makeMask(matrixSize=self.screen_pix_size[0], 
+                                shape='raisedCosine', 
+                                radius= 0.035,    
+                                range=[-1, 1],              
+                                )
+        fixation_app = (fixation_app * - 1) - 1 + mask
+
+        ############################################################################
+
+
+        self.mask_fix = visual.PatchStim(self.screen, 
+                                        mask=-fixation_app, 
+                                        tex=None, 
+                                        size=[self.screen_pix_size[0],self.screen_pix_size[0]], 
+                                        pos = np.array((0.0,0.0)), 
+                                        color = self.screen.background_color) 
+
+
         if self.config['bg_which_stimulus_type'] == 0: # blobs
             self.bg_stim = AttSizeBGStim(session=self, 
                         nr_rings=self.config['bg_stim_nr_rings'], 
@@ -99,13 +121,14 @@ is more red or more green on every stimulus presentation. """
                         nr_blob_rows_per_ring=self.config['bg_stim_nr_blob_rows_per_ring'], 
                         row_spacing_factor=self.config['bg_stim_ow_spacing_factor'],
                         opacity=self.config['bg_stim_opacity'])
+
         elif self.config['bg_which_stimulus_type'] == 1: # 1/f noise
             self.bg_stim = AttSizeBGPixelFest(session=self,
                         tex_size=self.config['bg_stim_noise_tex_size'],
                         amplitude_exponent=self.config['bg_stim_noise_amplitude_exponent'], 
                         n_textures=self.config['bg_stim_noise_n_textures'],
                         opacity=self.config['bg_stim_opacity'])                
-
+                        
     def create_trials(self):
         """creates trials by setting up staircases for background task, and prf stimulus sequence"""
 
@@ -115,6 +138,7 @@ is more red or more green on every stimulus presentation. """
 
         self.prf_bar_pass_times = np.r_[0, np.cumsum(np.array([self.config['prf_stim_barpass_duration']*self.config['TR'] 
                                         for prf_ori in self.config['prf_stim_sequence_angles']])), 1e7]
+
         ##################################################################################
         ## staircases
         ##################################################################################
@@ -146,6 +170,7 @@ is more red or more green on every stimulus presentation. """
                 if ring == self.index_number: # this is the ring for which the answers are recorded
                     self.which_correct_answer = correct_answer_this_ring
                     self.signal_ring_color_balance = this_ring_color_balance
+
         elif self.config['bg_which_stimulus_type'] == 1: # 1/f noise
             self.which_correct_answer = np.random.randint(0,2)
             answer_sign = (self.which_correct_answer*2)-1

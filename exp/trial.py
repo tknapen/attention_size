@@ -38,12 +38,14 @@ class AttSizeTrial(Trial):
         if (self.phase == 0 ) * (self.ID == 0):
                 self.session.instruction.draw()
         self.session.draw_prf_stimulus()
+        self.session.mask_fix.draw()           # added fixation aperture 
         if self.phase == 2:
             self.session.bg_stim.draw()
-        self.session.mask_stim.draw()
-        # self.session.bg_stim.draw_circles()
+        self.session.mask_stim.draw()          # large aperture
+        #self.session.bg_stim.draw_circles()   # only works for blob version
         self.session.fixation.draw()
         super(AttSizeTrial, self).draw()
+
 
     def event(self):
 
