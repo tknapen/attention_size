@@ -43,7 +43,9 @@ class AttSizeTrial(Trial):
             self.session.bg_stim.draw()
         self.session.mask_stim.draw()          # large aperture
         #self.session.bg_stim.draw_circles()   # only works for blob version
-        self.session.fixation.draw()
+        #self.session.fixation.draw()
+        self.session.noise_fest_stim_ring1.draw()
+        #self.session.noise_fest_stim_ring2.draw()
         super(AttSizeTrial, self).draw()
 
 

@@ -59,6 +59,12 @@ class AttSizeSession(EyelinkSession):
                                            sf=0,
                                            pos=(0,0))
         
+        # Small fixation condition ring
+        self.noise_fest_stim_ring1 = visual.Circle(self.screen, radius=self.config['fixation_size']/2, edges=32, lineColor='black', )
+
+        # Large  condition ring
+        #self.noise_fest_stim_ring2 = visual.Circle(self.screen, radius=(self.screen.size[0], edges=32, lineColor='black', )
+
         if self.index_number == 0:
             this_instruction_string = """Fixate in the center of the screen. 
 Your task is to judge whether the fixation marker 
@@ -92,17 +98,15 @@ is more red or more green on every stimulus presentation. """
                                         color = self.screen.background_color) 
 
 
-        ############################################################################
         # Aperture mask to keep fixation small stim free of prf stim
-        ############################################################################
+        fixation_aperture = float(self.config['fixation_size']) * 0.000525      # changes fix size into mask radius
+        
         fixation_app = filters.makeMask(matrixSize=self.screen_pix_size[0], 
-                                shape='raisedCosine', 
-                                radius= 0.035,    
-                                range=[-1, 1],              
+                                shape='raisedCosine', radius= fixation_aperture, range=[-1, 1], fringeWidth=0.005            
                                 )
         fixation_app = (fixation_app * - 1) - 1 + mask
 
-        ############################################################################
+
 
 
         self.mask_fix = visual.PatchStim(self.screen, 

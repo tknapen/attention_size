@@ -1,7 +1,7 @@
 from __future__ import division
 from exptools.core.session import EyelinkSession
 from trial import AttSizeTrial
-from psychopy import visual, clock
+from psychopy import visual, clock, filters
 import numpy as np
 import sympy as sym
 from math import * 
@@ -160,24 +160,21 @@ class AttSizeBGStim(object):
 class AttSizeBGPixelFest(object):
     def __init__(self, 
                 session, 
-                tex_size=2048, 
-                amplitude_exponent=2, 
-                n_textures=24,
-                opacity=0.125,
                 **kwargs):
 
         self.session = session
-        self.tex_size = tex_size
-        self.amplitude_exponent = amplitude_exponent
-        self.n_textures = n_textures
-        self.opacity = opacity
+
+        # Large Pixel Stimulus Params
+        self.tex_size = self.session.config['bg_stim_noise_tex_size']
+        self.amplitude_exponent = self.session.config['bg_stim_noise_amplitude_exponent']
+        self.n_textures = self.session.config['bg_stim_noise_n_textures']
+        self.opacity = self.session.config['bg_stim_opacity']
 
         self.basic_textures = self.create_basic_textures(self.tex_size,
                                     self.amplitude_exponent,
                                     self.n_textures)
 
-        # and make sure there is something to draw even before we get going.
-        self.recalculate_stim()
+        self.recalculate_stim() # and make sure there is something to draw even before we get going.
 
 
     def create_basic_textures(self, tex_size, amplitude_exponent, n_textures):
@@ -219,12 +216,20 @@ class AttSizeBGPixelFest(object):
 
         self.noise_fest_stim = visual.GratingStim(self.session.screen, 
                                 tex=tex, 
-                                size=(self.session.screen.size[1], self.session.screen.size[1]),
+                                size=(self.session.screen.size[0], self.session.screen.size[0]),
                                 ori=orientation)
 
-    def draw(self):
-        self.noise_fest_stim.draw()
 
+        self.noise_fest_stim_fix = visual.GratingStim(self.session.screen, 
+                                tex=tex, 
+                                size=(self.session.config['fixation_size'], self.session.config['fixation_size']),
+                                ori=orientation,
+                                mask='circle'
+                                )
+
+    def draw(self):
+        self.noise_fest_stim.draw()         # Draw large condition
+        self.noise_fest_stim_fix.draw()     # Draw small fixation condition
 
 
 class PRFStim(object):  
