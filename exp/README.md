@@ -1,6 +1,8 @@
 # Run The PRF Experiment:
 In the terminal, go to this folder. Then type ```python main.py <INITIALS>```, replacing `INITIALS` with your own initials. Later on, it will become ```python main.py <INITIALS> <INDEX>```, where `INDEX` stands for the type of condition to be run during this 'run'.
 
+* Current version optimized (screen) for experimental lab setup (7T testroom)
+
 ## To do for behavioral pilots:
 
 1. Separate staircases for fixation mark and background stimulus.
