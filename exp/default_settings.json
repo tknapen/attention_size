@@ -1,9 +1,9 @@
 {
 	"TR":1.5,
+    "fix_time":0.611,
+    "stim_time":0.25,
+    "post_fix_time":0.61,
     "size_fixation_deg":0.25,
-	"fix_time":1.25,
-	"stim_time":0.25,
-	"post_fix_time":0.25,
 	"prf_checker_cycles_in_bar":4, 
     "prf_checker_bar_width":0.125, 
     "prf_checker_tex_nr_pix":512, 
@@ -17,13 +17,13 @@
     "bg_stim_nr_blob_rows_per_ring":12, 
     "bg_stim_ow_spacing_factor":0.8,
 
-    "bg_stim_noise_tex_size": 1024,
+    "bg_stim_noise_tex_size": 256,
     "bg_stim_noise_amplitude_exponent": 1,
-    "bg_stim_noise_n_textures": 8,
+    "bg_stim_noise_n_textures": 4,
     "bg_stim_opacity": 0.5,
 
     "staircase_initial_value": 0.1,
-    "aperture_max_eccen": 0.6,
+    "aperture_max_eccen": 0.55,
     "aperture_sd": 0.0125,
     "fixation_size": 20
 }

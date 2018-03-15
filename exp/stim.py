@@ -216,7 +216,7 @@ class AttSizeBGPixelFest(object):
 
         self.noise_fest_stim = visual.GratingStim(self.session.screen, 
                                 tex=tex, 
-                                size=(self.session.screen.size[0], self.session.screen.size[0]),
+                                size=(self.session.screen.size[1], self.session.screen.size[1]),
                                 ori=orientation)
 
 

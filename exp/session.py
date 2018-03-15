@@ -23,7 +23,7 @@ class AttSizeSession(EyelinkSession):
 
         super(AttSizeSession, self).__init__(*args, **kwargs)
 
-        # self.create_screen(full_screen=True, engine='pygaze')
+        self.create_screen(full_screen=True, engine='pygaze')
 
         config_file = os.path.join(os.path.abspath(os.getcwd()), 'default_settings.json')
 
@@ -35,7 +35,7 @@ class AttSizeSession(EyelinkSession):
         self.create_trials()
 
         # dict that maps button keys to answers
-        self.answer_dictionary = {'b': 0, 'g': 1}
+        self.answer_dictionary = {'g': 0, 'b': 1}
 
         self.run_time = -1
         self.stopped = False
@@ -107,7 +107,7 @@ is more red or more green on every stimulus presentation. """
         fixation_app = (fixation_app * - 1) - 1 + mask
 
 
-
+        print(self.screen.size)
 
         self.mask_fix = visual.PatchStim(self.screen, 
                                         mask=-fixation_app, 
@@ -199,6 +199,7 @@ is more red or more green on every stimulus presentation. """
                                 position_scaling=1+self.config["prf_checker_bar_width"])
 
     def close(self):
+        print(self.outputDict['eventArray'])
         with open(self.staircase_file, 'w') as f:
             pickle.dump(self.staircase, f)
         super(AttSizeSession, self).close()
