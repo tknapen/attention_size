@@ -13,12 +13,13 @@ def main():
         #tracker_on = True
     # elif track_eyes == 'n':
         #tracker_on = False
+    task = int(raw_input('fixation (0) or surround (1) task?: '))
 
     # initials = 'tk'
-    run = 0
+    index_number = 0
     appnope.nope()
 
-    ts = AttSizeSession(subject_initials=initials, index_number=run, tracker_on=False)
+    ts = AttSizeSession(subject_initials=initials, index_number=index_number, task=task, tracker_on=False)
     ts.run()
 
 if __name__ == '__main__':

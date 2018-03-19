@@ -150,7 +150,6 @@ class AttSizeBGStim(object):
 
     def draw(self):
         self.element_array_stim.draw()
-        # self.draw_circles()
 
     def draw_circles(self):
         for ring in self.rings:
@@ -159,16 +158,19 @@ class AttSizeBGStim(object):
 
 class AttSizeBGPixelFest(object):
     def __init__(self, 
-                session, 
+                session,
+                tex_size=1024,
+                amplitude_exponent=1, 
+                n_textures=2,
+                opacity=0.5,
                 **kwargs):
 
         self.session = session
 
-        # Large Pixel Stimulus Params
-        self.tex_size = self.session.config['bg_stim_noise_tex_size']
-        self.amplitude_exponent = self.session.config['bg_stim_noise_amplitude_exponent']
-        self.n_textures = self.session.config['bg_stim_noise_n_textures']
-        self.opacity = self.session.config['bg_stim_opacity']
+        self.tex_size = tex_size
+        self.amplitude_exponent = amplitude_exponent
+        self.n_textures = n_textures
+        self.opacity = opacity
 
         self.basic_textures = self.create_basic_textures(self.tex_size,
                                     self.amplitude_exponent,
@@ -219,17 +221,8 @@ class AttSizeBGPixelFest(object):
                                 size=(self.session.screen.size[1], self.session.screen.size[1]),
                                 ori=orientation)
 
-
-        self.noise_fest_stim_fix = visual.GratingStim(self.session.screen, 
-                                tex=tex, 
-                                size=(self.session.config['fixation_size'], self.session.config['fixation_size']),
-                                ori=orientation,
-                                mask='circle'
-                                )
-
     def draw(self):
-        self.noise_fest_stim.draw()         # Draw large condition
-        self.noise_fest_stim_fix.draw()     # Draw small fixation condition
+        self.noise_fest_stim.draw()
 
 
 class PRFStim(object):  

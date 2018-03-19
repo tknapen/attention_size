@@ -36,16 +36,17 @@ class AttSizeTrial(Trial):
 
         # draw additional stimuli:
         if (self.phase == 0 ) * (self.ID == 0):
-                self.session.instruction.draw()
+            self.session.instruction.draw()
+
         self.session.draw_prf_stimulus()
-        self.session.mask_fix.draw()           # added fixation aperture 
+
         if self.phase == 2:
             self.session.bg_stim.draw()
+            self.session.mask_fix.draw()
+            self.session.fix_stim.draw()
+
         self.session.mask_stim.draw()          # large aperture
-        #self.session.bg_stim.draw_circles()   # only works for blob version
-        #self.session.fixation.draw()
-        self.session.noise_fest_stim_ring1.draw()
-        #self.session.noise_fest_stim_ring2.draw()
+        self.session.fixation_circle.draw()
         super(AttSizeTrial, self).draw()
 
 
@@ -67,11 +68,17 @@ class AttSizeTrial(Trial):
                         self.stop()
                 if ev in list(self.session.answer_dictionary.keys()): # staircase answers
                     if self.parameters['answer'] == -1: # only incorporate answer if not answered yet.
-                        self.parameters['staircase_value'] = self.session.staircase.get_intensity()
+                        # and, only incorporate answer into staircase pertaining to present task
+                        if self.session.task == 0: # fixation
+                            self.parameters['staircase_value'] = self.session.fix_staircase.get_intensity()
+                        elif self.session.task == 1: # surround
+                            self.parameters['staircase_value'] = self.session.bg_staircase.get_intensity()
+
                         self.parameters['answer'] = self.session.answer_dictionary[ev]
                         self.parameters['correct'] = int(self.session.answer_dictionary[ev] == self.session.which_correct_answer)
                         # incorporate answer
-                        self.session.staircase.answer(
-                            correct=self.parameters['correct']
-                            )
+                        if self.session.task == 0: # fixation
+                            self.session.fix_staircase.answer(correct=self.parameters['correct'])
+                        elif self.session.task == 1: # surround
+                            self.session.bg_staircase.answer(correct=self.parameters['correct'])
             super(AttSizeTrial, self).key_event(ev)

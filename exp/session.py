@@ -11,7 +11,7 @@ import pickle
 
 import exptools
 from exptools.core.session import EyelinkSession
-from exptools.core.staircase import ThreeUpOneDownStaircase
+from exptools.core.staircase import ThreeUpOneDownStaircase, OneUpOneDownStaircase
 
 from trial import AttSizeTrial
 from stim import AttSizeBGStim, AttSizeBGPixelFest, PRFStim
@@ -19,23 +19,29 @@ from stim import AttSizeBGStim, AttSizeBGPixelFest, PRFStim
 
 class AttSizeSession(EyelinkSession):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, subject_initials, index_number, task, tracker_on, *args, **kwargs):
 
-        super(AttSizeSession, self).__init__(*args, **kwargs)
+        super(AttSizeSession, self).__init__(subject_initials, index_number, tracker_on, *args, **kwargs)
 
         self.create_screen(full_screen=True, engine='pygaze')
-
+        self.task = task
         config_file = os.path.join(os.path.abspath(os.getcwd()), 'default_settings.json')
 
         with open(config_file) as config_file:
             config = json.load(config_file)
 
         self.config = config
-        self.create_stimuli()
-        self.create_trials()
 
         # dict that maps button keys to answers
-        self.answer_dictionary = {'g': 0, 'b': 1}
+        # self.answer_dictionary = {'g': 0, 'b': 1}       
+        self.answer_dictionary =  self.config['answer_dictionary']
+
+        # construct name for staircase file
+        self.fix_staircase_file = os.path.join('data', self.subject_initials + '_' + str(self.index_number) + '_0.pkl')
+        self.bg_staircase_file = os.path.join('data', self.subject_initials + '_' + str(self.index_number) + '_1.pkl')
+
+        self.create_stimuli()
+        self.create_trials()
 
         self.run_time = -1
         self.stopped = False
@@ -60,28 +66,26 @@ class AttSizeSession(EyelinkSession):
                                            pos=(0,0))
         
         # Small fixation condition ring
-        self.noise_fest_stim_ring1 = visual.Circle(self.screen, radius=self.config['fixation_size']/2, edges=32, lineColor='black', )
+        self.fixation_circle = visual.Circle(self.screen, radius=self.config['fixation_size']/2, edges=32, lineColor='black')
 
-        # Large  condition ring
-        #self.noise_fest_stim_ring2 = visual.Circle(self.screen, radius=(self.screen.size[0], edges=32, lineColor='black', )
-
-        if self.index_number == 0:
+        if self.task == 0:
             this_instruction_string = """Fixate in the center of the screen. 
-Your task is to judge whether the fixation marker 
-is more red or more green on every stimulus presentation. """
-        elif self.index_number == 1:
+                Your task is to judge whether the fixation marker 
+                is more red or more green on every stimulus presentation. """
+        elif self.task == 1:
             this_instruction_string = """Fixate in the center of the screen.  
-Your task is to judge whether the background 
-is more red or more green on every stimulus presentation. """
+                Your task is to judge whether the background 
+                is more red or more green on every stimulus presentation. """
+
         self.instruction = visual.TextStim(self.screen, 
             text = this_instruction_string, 
             font = 'Helvetica Neue',
             pos = (0, 0),
             italic = True, 
-            height = 20, 
+            height = 30, 
             alignHoriz = 'center',
             color=(-1,-1,1))
-        self.instruction.setSize((1600,150))
+        self.instruction.setSize((500,150))
 
         mask = filters.makeMask(matrixSize=self.screen_pix_size[0], 
                                 shape='raisedCosine', 
@@ -97,7 +101,6 @@ is more red or more green on every stimulus presentation. """
                                         pos = np.array((0.0,0.0)), 
                                         color = self.screen.background_color) 
 
-
         # Aperture mask to keep fixation small stim free of prf stim
         fixation_aperture = float(self.config['fixation_size']) * 0.000525      # changes fix size into mask radius
         
@@ -106,9 +109,6 @@ is more red or more green on every stimulus presentation. """
                                 )
         fixation_app = (fixation_app * - 1) - 1 + mask
 
-
-        print(self.screen.size)
-
         self.mask_fix = visual.PatchStim(self.screen, 
                                         mask=-fixation_app, 
                                         tex=None, 
@@ -116,8 +116,7 @@ is more red or more green on every stimulus presentation. """
                                         pos = np.array((0.0,0.0)), 
                                         color = self.screen.background_color) 
 
-
-        if self.config['bg_which_stimulus_type'] == 0: # blobs
+        if self.config['which_stimulus_type'] == 0: # blobs
             self.bg_stim = AttSizeBGStim(session=self, 
                         nr_rings=self.config['bg_stim_nr_rings'], 
                         ecc_min=self.config['bg_stim_ecc_min'], 
@@ -126,13 +125,20 @@ is more red or more green on every stimulus presentation. """
                         row_spacing_factor=self.config['bg_stim_ow_spacing_factor'],
                         opacity=self.config['bg_stim_opacity'])
 
-        elif self.config['bg_which_stimulus_type'] == 1: # 1/f noise
+        elif self.config['which_stimulus_type'] == 1: # 1/f noise
             self.bg_stim = AttSizeBGPixelFest(session=self,
-                        tex_size=self.config['bg_stim_noise_tex_size'],
-                        amplitude_exponent=self.config['bg_stim_noise_amplitude_exponent'], 
-                        n_textures=self.config['bg_stim_noise_n_textures'],
-                        opacity=self.config['bg_stim_opacity'])                
-                        
+                        tex_size=self.config['pixstim_bg_tex_size'],
+                        amplitude_exponent=self.config['pixstim_bg_amplitude_exponent'], 
+                        n_textures=self.config['pixstim_bg_noise_n_textures'],
+                        opacity=self.config['pixstim_bg_opacity'])                
+        
+        self.fix_stim = AttSizeBGPixelFest(session=self,
+                        tex_size=self.config['pixstim_fix_tex_size'],
+                        amplitude_exponent=self.config['pixstim_fix_amplitude_exponent'], 
+                        n_textures=self.config['pixstim_fix_noise_n_textures'],
+                        opacity=self.config['pixstim_fix_opacity'])    
+
+
     def create_trials(self):
         """creates trials by setting up staircases for background task, and prf stimulus sequence"""
 
@@ -144,46 +150,139 @@ is more red or more green on every stimulus presentation. """
                                         for prf_ori in self.config['prf_stim_sequence_angles']])), 1e7]
 
         ##################################################################################
-        ## staircases
+        ## fixation staircases
         ##################################################################################
-
-        self.staircase_file = os.path.join('data', self.subject_initials + '_' + str(self.index_number) + '.pkl')
-        if os.path.isfile(self.staircase_file):
-            with open(self.staircase_file, 'r') as f:
-                self.staircase = pickle.load(f)
+        if os.path.isfile(self.fix_staircase_file):
+            with open(self.fix_staircase_file, 'r') as f:
+                self.fix_staircase = pickle.load(f)
         else:
-            self.staircase = ThreeUpOneDownStaircase(initial_value=self.config['staircase_initial_value'], 
-                                                initial_stepsize=self.config['staircase_initial_value']/4.0, 
+            if self.index_number == 0: 
+                self.fix_staircase = OneUpOneDownStaircase(initial_value=self.config['1u1d_center_staircase_initial_value'], 
+                                            initial_stepsize=self.config['1u1d_center_staircase_initial_value']/4.0, 
+                                            nr_reversals = 3000, 
+                                            increment_value = self.config['1u1d_center_staircase_initial_value']/4.0, 
+                                            stepsize_multiplication_on_reversal = 0.8, 
+                                            max_nr_trials = 12000, 
+                                            min_test_val = None, 
+                                            max_test_val = 0.5)
+
+            elif self.index_number == 1:
+                self.fix_staircase = ThreeUpOneDownStaircase(initial_value=self.config['3u1d_center_staircase_initial_value'], 
+                                                initial_stepsize=self.config['3u1d_center_staircase_initial_value']/4.0, 
                                                 nr_reversals = 3000, 
-                                                increment_value = self.config['staircase_initial_value']/4.0, 
+                                                increment_value = self.config['3u1d_center_staircase_initial_value']/4.0, 
                                                 stepsize_multiplication_on_reversal = 0.9, 
                                                 max_nr_trials = 12000, 
                                                 min_test_val = None, 
                                                 max_test_val = 0.5)
+
+
+
+
+        ##################################################################################
+        ## surround staircases
+        ##################################################################################
+
+        if os.path.isfile(self.bg_staircase_file):
+            with open(self.bg_staircase_file, 'r') as f:
+                self.bg_staircase = pickle.load(f)
+        else:
+            if self.index_number == 0: 
+                self.bg_staircase = OneUpOneDownStaircase(initial_value=self.config['1u1d_surround_staircase_initial_value'], 
+                                            initial_stepsize=self.config['1u1d_surround_staircase_initial_value']/4.0, 
+                                            nr_reversals = 3000, 
+                                            increment_value = self.config['1u1d_surround_staircase_initial_value']/4.0, 
+                                            stepsize_multiplication_on_reversal = 0.8, 
+                                            max_nr_trials = 12000, 
+                                            min_test_val = None, 
+                                            max_test_val = 0.5)
+
+            elif self.index_number == 1:
+                self.bg_staircase = ThreeUpOneDownStaircase(initial_value=self.config['3u1d_surround_staircase_initial_value'], 
+                                                initial_stepsize=self.config['3u1d_surround_staircase_initial_value']/4.0, 
+                                                nr_reversals = 3000, 
+                                                increment_value = self.config['3u1d_surround_staircase_initial_value']/4.0, 
+                                                stepsize_multiplication_on_reversal = 0.9, 
+                                                max_nr_trials = 12000, 
+                                                min_test_val = None, 
+                                                max_test_val = 0.5)
+ 
+        self.set_stimulus_values()
+
+    def set_stimulus_values(self):
+
         self.set_background_stimulus_values()
+        self.set_fix_stimulus_values()
+
+
+    def set_fix_stimulus_values(self):
+        """set_fix_stimulus_values sets the value of the fixation stimulus based on the fix_staircase.
+        It has to take into account the stimulus type and type of staircase to construct the values,
+        and will only set the self.which_correct_answer if the fixation task is being performed in this run.
+        """
+
+        this_intensity = self.fix_staircase.get_intensity()
+
+        # if self.config['which_stimulus_type'] == 0: # blobs
+        #     if self.index_number == 0: # one up one down staircase goes only from one direction
+        #         which_correct_answer = 0
+        #     elif self.index_number == 1: # three up one down staircase
+        #         which_correct_answer = np.random.randint(0,2)
+ 
+        #     color_balance = 0.5 + ((which_correct_answer*2)-1) * this_intensity   
+        #     self.fix_stim.repopulate_condition_ring_colors(condition_nr=0, 
+        #         color_balance=color_balance)
+
+        # elif self.config['which_stimulus_type'] == 1: # 1/f noise
+        if self.index_number == 0: # one up one down staircase goes only from one direction
+            which_correct_answer = 0
+        elif self.index_number == 1: # three up one down staircase
+            which_correct_answer = np.random.randint(0,2)
+        
+        answer_sign = (which_correct_answer*2)-1
+        self.fix_stim.recalculate_stim( red_boost=this_intensity*answer_sign,
+                                        green_boost=this_intensity*-answer_sign, 
+                                        blue_boost=0)
+
+        # regardless of stimulus type, we now know the correct answer.
+        if self.task == 0: # subject is actually doing fixation task
+            self.which_correct_answer = which_correct_answer
+            print('fix stim: ca %i, int %f '%(self.which_correct_answer, this_intensity))
 
     def set_background_stimulus_values(self):
-        this_intensity = self.staircase.get_intensity()
+        """set_background_stimulus_values sets the value of the fixation stimulus based on the fix_staircase.
+        It has to take into account the stimulus type and type of staircase to construct the values,
+        and will only set the self.which_correct_answer if the background task is being performed in this run.
+        """
 
-        if self.config['bg_which_stimulus_type'] == 0: # blobs
-            for ring in np.arange(self.config['bg_stim_nr_rings']):
-                correct_answer_this_ring = np.random.randint(0,2)
-                this_ring_color_balance = 0.5 + ((correct_answer_this_ring*2)-1) * this_intensity
-                self.bg_stim.repopulate_condition_ring_colors(condition_nr=ring,
-                                                                color_balance=this_ring_color_balance)
-                if ring == self.index_number: # this is the ring for which the answers are recorded
-                    self.which_correct_answer = correct_answer_this_ring
-                    self.signal_ring_color_balance = this_ring_color_balance
+        this_intensity = self.bg_staircase.get_intensity()
 
-        elif self.config['bg_which_stimulus_type'] == 1: # 1/f noise
-            self.which_correct_answer = np.random.randint(0,2)
-            answer_sign = (self.which_correct_answer*2)-1
+        if self.config['which_stimulus_type'] == 0: # blobs
+            if self.index_number == 0: # one up one down staircase goes only from one direction
+                which_correct_answer = 0
+            elif self.index_number == 1: # three up one down staircase
+                which_correct_answer = np.random.randint(0,2)
+ 
+            color_balance = 0.5 + ((which_correct_answer*2)-1) * this_intensity   
+            self.bg_stim.repopulate_condition_ring_colors(condition_nr=0, 
+                color_balance=color_balance)
+
+        elif self.config['which_stimulus_type'] == 1: # 1/f noise
+            if self.index_number == 0: # one up one down staircase goes only from one direction
+                which_correct_answer = 0
+            elif self.index_number == 1: # three up one down staircase
+                which_correct_answer = np.random.randint(0,2)
+            
+            answer_sign = (which_correct_answer*2)-1
             self.bg_stim.recalculate_stim(  red_boost=this_intensity*answer_sign,
                                             green_boost=this_intensity*-answer_sign, 
                                             blue_boost=0)
-            self.signal_ring_color_balance = self.index_number
 
-        print('bg stim: ca %i, int %f '%(self.which_correct_answer, this_intensity))
+        # regardless of stimulus type, we now know the correct answer.
+        if self.task == 1: # subject is actually doing bg task
+            self.which_correct_answer = which_correct_answer
+            print('bg stim: ca %i, int %f '%(self.which_correct_answer, this_intensity*-answer_sign))
+
 
     def draw_prf_stimulus(self):
         # only draw anything after the experiment has started
@@ -199,9 +298,12 @@ is more red or more green on every stimulus presentation. """
                                 position_scaling=1+self.config["prf_checker_bar_width"])
 
     def close(self):
-        print(self.outputDict['eventArray'])
-        with open(self.staircase_file, 'w') as f:
-            pickle.dump(self.staircase, f)
+        # print(self.outputDict['eventArray'])
+        with open(self.bg_staircase_file, 'w') as f:
+            pickle.dump(self.bg_staircase, f)
+        with open(self.fix_staircase_file, 'w') as f:
+            pickle.dump(self.fix_staircase, f)
+
         super(AttSizeSession, self).close()
 
     def run(self):
