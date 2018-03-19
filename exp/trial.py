@@ -30,7 +30,7 @@ class AttSizeTrial(Trial):
         self.parameters['staircase_value'] = 0
         self.parameters['correct'] = -1
 
-        self.session.set_background_stimulus_values()
+        self.session.set_stimulus_values()
 
     def draw(self, *args, **kwargs):
 
@@ -41,11 +41,15 @@ class AttSizeTrial(Trial):
         self.session.draw_prf_stimulus()
 
         if self.phase == 2:
-            self.session.bg_stim.draw()
-            self.session.mask_fix.draw()
-            self.session.fix_stim.draw()
+            # first draw fixation
+            # self.session.fix_stim.draw()
+            # self.session.fix_mask_stim.draw()
 
-        self.session.mask_stim.draw()          # large aperture
+            self.session.bg_stim.draw()
+            self.session.aperture_mask_stim.draw()
+
+
+        # self.session.aperture_mask_stim.draw()          # large aperture
         self.session.fixation_circle.draw()
         super(AttSizeTrial, self).draw()
 

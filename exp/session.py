@@ -66,7 +66,7 @@ class AttSizeSession(EyelinkSession):
                                            pos=(0,0))
         
         # Small fixation condition ring
-        self.fixation_circle = visual.Circle(self.screen, radius=self.config['fixation_size']/2, edges=32, lineColor='black')
+        self.fixation_circle = visual.Circle(self.screen, radius=self.config['size_fixation_deg'] * self.pixels_per_degree/2, edges=128, lineColor='black')
 
         if self.task == 0:
             this_instruction_string = """Fixate in the center of the screen. 
@@ -85,36 +85,42 @@ class AttSizeSession(EyelinkSession):
             height = 30, 
             alignHoriz = 'center',
             color=(-1,-1,1))
-        self.instruction.setSize((500,150))
+        self.instruction.setSize((700,150))
 
-        mask = filters.makeMask(matrixSize=self.screen_pix_size[0], 
+        aperture_mask = filters.makeMask(matrixSize=self.screen_pix_size[1], 
                                 shape='raisedCosine', 
                                 radius=self.config['aperture_max_eccen'], 
-                                # center=(0.0, 0.0), 
+                                center=(0.0, 0.0),
                                 range=[-1, 1], 
-                                fringeWidth=self.config['aperture_sd']
-                                )
-        self.mask_stim = visual.PatchStim(self.screen, 
-                                        mask=-mask, 
+                                fringeWidth=self.config['aperture_sd'])
+        fix_radius = self.config['size_fixation_deg'] * self.pixels_per_degree / float(self.screen_pix_size[1])
+        fixation_mask = filters.makeMask(matrixSize=self.screen_pix_size[1], 
+                                shape='raisedCosine', 
+                                radius=0.01,
+                                center=(0.0, 0.0),
+                                range=[-1, 1], 
+                                fringeWidth=0.01)
+
+        self.fix_mask_stim = visual.PatchStim(self.screen, 
+                                        mask=fixation_mask, 
                                         tex=None, 
-                                        size=[self.screen_pix_size[0],self.screen_pix_size[0]], 
+                                        size=[self.screen_pix_size[1],self.screen_pix_size[1]],  
                                         pos = np.array((0.0,0.0)), 
                                         color = self.screen.background_color) 
 
-        # Aperture mask to keep fixation small stim free of prf stim
-        fixation_aperture = float(self.config['fixation_size']) * 0.000525      # changes fix size into mask radius
-        
-        fixation_app = filters.makeMask(matrixSize=self.screen_pix_size[0], 
-                                shape='raisedCosine', radius= fixation_aperture, range=[-1, 1], fringeWidth=0.005            
-                                )
-        fixation_app = (fixation_app * - 1) - 1 + mask
-
-        self.mask_fix = visual.PatchStim(self.screen, 
-                                        mask=-fixation_app, 
+        self.aperture_mask_stim = visual.PatchStim(self.screen, 
+                                        mask=aperture_mask-fixation_mask, 
                                         tex=None, 
-                                        size=[self.screen_pix_size[0],self.screen_pix_size[0]], 
+                                        size=[self.screen_pix_size[1],self.screen_pix_size[1]], 
                                         pos = np.array((0.0,0.0)), 
                                         color = self.screen.background_color) 
+
+        self.fix_stim = AttSizeBGPixelFest(session=self,
+                        tex_size=self.config['pixstim_fix_tex_size'],
+                        amplitude_exponent=self.config['pixstim_fix_amplitude_exponent'], 
+                        n_textures=self.config['pixstim_fix_noise_n_textures'],
+                        opacity=self.config['pixstim_fix_opacity'],
+                        size=self.config['size_fixation_deg'] * self.pixels_per_degree)  
 
         if self.config['which_stimulus_type'] == 0: # blobs
             self.bg_stim = AttSizeBGStim(session=self, 
@@ -130,13 +136,10 @@ class AttSizeSession(EyelinkSession):
                         tex_size=self.config['pixstim_bg_tex_size'],
                         amplitude_exponent=self.config['pixstim_bg_amplitude_exponent'], 
                         n_textures=self.config['pixstim_bg_noise_n_textures'],
-                        opacity=self.config['pixstim_bg_opacity'])                
+                        opacity=self.config['pixstim_bg_opacity'],
+                        size=self.screen.size[1])                
         
-        self.fix_stim = AttSizeBGPixelFest(session=self,
-                        tex_size=self.config['pixstim_fix_tex_size'],
-                        amplitude_exponent=self.config['pixstim_fix_amplitude_exponent'], 
-                        n_textures=self.config['pixstim_fix_noise_n_textures'],
-                        opacity=self.config['pixstim_fix_opacity'])    
+  
 
 
     def create_trials(self):
@@ -210,7 +213,6 @@ class AttSizeSession(EyelinkSession):
         self.set_stimulus_values()
 
     def set_stimulus_values(self):
-
         self.set_background_stimulus_values()
         self.set_fix_stimulus_values()
 

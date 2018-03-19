@@ -163,6 +163,7 @@ class AttSizeBGPixelFest(object):
                 amplitude_exponent=1, 
                 n_textures=2,
                 opacity=0.5,
+                size=0,
                 **kwargs):
 
         self.session = session
@@ -171,6 +172,9 @@ class AttSizeBGPixelFest(object):
         self.amplitude_exponent = amplitude_exponent
         self.n_textures = n_textures
         self.opacity = opacity
+        self.size = size
+
+        print(self.tex_size, self.opacity)
 
         self.basic_textures = self.create_basic_textures(self.tex_size,
                                     self.amplitude_exponent,
@@ -218,7 +222,7 @@ class AttSizeBGPixelFest(object):
 
         self.noise_fest_stim = visual.GratingStim(self.session.screen, 
                                 tex=tex, 
-                                size=(self.session.screen.size[1], self.session.screen.size[1]),
+                                size=(self.size, self.size),
                                 ori=orientation)
 
     def draw(self):
