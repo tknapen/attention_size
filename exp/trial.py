@@ -38,16 +38,28 @@ class AttSizeTrial(Trial):
         if (self.phase == 0 ) * (self.ID == 0):
             self.session.instruction.draw()
 
-        self.session.draw_prf_stimulus()
+        self.session.draw_prf_stimulus() 
 
         if self.phase == 2:
-            self.session.bg_stim.draw()
-            self.session.mask_fix.draw()
-            self.session.fix_stim.draw()
+            self.session.bg_stim.draw()             # surround condition + aperture
+            self.session.fix_stim.draw()            # fixation condition + aperture
+            self.session.fixation_circle.draw()     # circle around fixation condition
 
-        self.session.mask_stim.draw()          # large aperture
-        self.session.fixation_circle.draw()
+        
+        self.session.mask_stim.draw()           # surround aperture
         super(AttSizeTrial, self).draw()
+
+
+        # self.session.draw_prf_stimulus()
+
+        # if self.phase == 2:
+        #     self.session.bg_stim.draw()
+        #     self.session.mask_fix.draw()
+        #     self.session.fix_stim.draw()
+
+        # self.session.mask_stim.draw()          
+        # self.session.fixation_circle.draw()
+        # super(AttSizeTrial, self).draw()
 
 
     def event(self):
@@ -73,9 +85,11 @@ class AttSizeTrial(Trial):
                             self.parameters['staircase_value'] = self.session.fix_staircase.get_intensity()
                         elif self.session.task == 1: # surround
                             self.parameters['staircase_value'] = self.session.bg_staircase.get_intensity()
-
                         self.parameters['answer'] = self.session.answer_dictionary[ev]
                         self.parameters['correct'] = int(self.session.answer_dictionary[ev] == self.session.which_correct_answer)
+                        
+                        print self.parameters['correct']
+
                         # incorporate answer
                         if self.session.task == 0: # fixation
                             self.session.fix_staircase.answer(correct=self.parameters['correct'])

@@ -5,17 +5,16 @@ In the terminal, go to this folder. Then type ```python main.py <INITIALS>```, r
 
 ## To do for behavioral pilots:
 
-1. Separate staircases for fixation mark and background stimulus.
-2. Two staircases for each (fix and bg): 
-    * One-Up-One-Down staircase to find point of subjective equality (equiluminance) for red and green.
-    * Three-Up-One-Down staircase to titrate difficulty in 2-AFC task
-    * *Store staircases in a dictionary to be pickled?*
-3. The spatial frequency content of the bg and fix stimuli need to be titrated to ensure global/local attentional focus. 
-4. Also, the opacity of the background stimulus needs to be set.
-5. Fixation apperture was added for safety zone, but minor change required for showing instruction text 
-6. For 1/F stim, add fixation condition
-7. Add 2(?) borders around conditions, for both exp versions?
-8. Test outputs; can we reconstruct the entire staircase from the outputs in the pickle and edf files?
+1. New working masks for fixation and surround (so stimuli can be used as seperate objects)
+   - Draw order of the masks and stimuli are incorrect (include masks into stim objects, i.e. recalculate_stim tweak opacity param??)
+   - Fixation condition is too large, should be reduced to smaller size (include seperate size params for basic_textures function??)
+   - If conditions get a circle border, the border blurring is no longer required(?) but then hard edges... 
+
+2. Blob stimulus: add fixation condition and think about layout (1/2 circles of many(!) blobs, with or without fixation cross?)
+3. Staircase output check: can we reconstruct the entire staircase from the outputs in the pickle and edf files?
+4. The spatial frequency content of the bg and fix stimuli need to be titrated to ensure global/local attentional focus. 
+5. Opacity of the background stimulus needs to be set.
+6. Add 2(?) borders around fixation and surround conditions, for both exp versions
 
 
 ## To do for scanning pilots:
