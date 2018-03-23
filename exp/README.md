@@ -7,9 +7,9 @@ In the terminal, go to this folder. Then type ```python main.py <INITIALS>```, r
 
 1. Large aperture for entire experiment is not wide enough for pRF stim, needs fix
 	- pRF bar shows behind fixation condition and in front of surround, but this is due opacity params
-2. Blob stimulus: add fixation condition and think about layout (1/2 circles of many(!) blobs, with or without fixation cross?)
+2. Blob stimulus: add fixation condition and think about layout (1-2 circles of many blobs,include fixation cross?)
 3. Staircase output check: can we reconstruct the entire staircase from the outputs in the pickle and edf files?
-4. The spatial frequency content of the bg and fix stimuli need to be titrated to ensure global/local attentional focus. 
+4. The spatial frequency content of the bg and fix stimuli need to be titrated to ensure global/local attentional focus 
 
 
 ## To do for scanning pilots:
