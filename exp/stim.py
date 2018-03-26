@@ -163,8 +163,8 @@ class AttSizeBGPixelFest(object):
                 amplitude_exponent, 
                 n_textures,
                 opacity,
-                size,            # NEW
-                aperture,        # NEW
+                size,            # NEW JR
+                aperture,        # NEW JR
                 **kwargs):  
 
         self.session = session
@@ -172,8 +172,8 @@ class AttSizeBGPixelFest(object):
         self.amplitude_exponent = amplitude_exponent
         self.n_textures = n_textures
         self.opacity = opacity
-        self.size = size                            # NEW
-        self.aperture = aperture                    # NEW
+        self.size = size                            # NEW JR
+        self.aperture = aperture                    # NEW JR
 
 
         self.basic_textures = self.create_basic_textures(self.tex_size,
@@ -207,11 +207,6 @@ class AttSizeBGPixelFest(object):
         return textures
 
 
-
-
-    # evt. recalculate stim een mask meegeven die gelijk het mask is voor fixation 
-    # functie ook een size meegeven die verschilt tussen fixation and surround (?)
-
     def recalculate_stim(self, red_boost=1, green_boost=1, blue_boost=0, opacity=None):
         which_textures = np.random.choice(self.n_textures, 3, replace=False)
         orientation = np.random.choice([0,90,180,270], 1)
@@ -233,32 +228,25 @@ class AttSizeBGPixelFest(object):
                                 ori=orientation)
 
 
+        # Aperture Mask for pixel stimulus object (size + aperture params)
+        self.stimulus_aperture = filters.makeMask(matrixSize=1080,          # NEW JR
+                                shape='raisedCosine',                       
+                                radius=self.aperture,                       
+                                center=(0.0, 0.0),                          
+                                range=[-1, 1],                              
+                                fringeWidth= 0.1)                           
 
-        ################################################
-        # Create mask for each stimulus object
-        ################################################
-
-        self.stimulus_aperture = filters.makeMask(matrixSize=1080,    # TEMP SIZE PARAM?
-                                shape='raisedCosine', 
-                                radius=self.aperture,   
-                                center=(0.0, 0.0),
-                                range=[-1, 1], 
-                                fringeWidth= 0.1)
-
-        self.noise_fest_stim_new = visual.GratingStim(self.session.screen, 
-                                        tex=tex, 
+        self.noise_fest_stim_new = visual.GratingStim(self.session.screen,  # NEW JR
+                                        tex=tex,                            
                                         mask=self.stimulus_aperture, 
                                         size=[self.size, self.size], 
                                         pos = np.array((0.0,0.0)),
                                         ori=orientation,
                                         color=(1.0, 1.0, 1.0))      
-        ################################################
-
-
 
     def draw(self):
-        #self.noise_fest_stim.draw()
-        self.noise_fest_stim_new.draw()     # NEW
+        #self.noise_fest_stim.draw()        
+        self.noise_fest_stim_new.draw()     # NEW JR    (draw object + mask)
 
 
 class PRFStim(object):  
