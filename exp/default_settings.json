@@ -5,7 +5,7 @@
     "post_fix_time":0.61,
     "size_fixation_deg":0.25,
 
-    "which_stimulus_type": 1,    
+    "which_stimulus_type": 0,    
     "size_fixation_deg":0.25,
 
     "prf_checker_cycles_in_bar":4, 
@@ -15,12 +15,19 @@
     "prf_stim_sequence_angles":[-1, 0, -1, 45, 270, -1,  315, 180, -1,  135,   90, -1,  225, -1],
     "prf_stim_barpass_duration":20,
 
-    "bg_stim_nr_rings": 1, 
-    "bg_stim_ecc_min":0.1, 
-    "bg_stim_ecc_max":15, 
-    "bg_stim_nr_blob_rows_per_ring":12, 
-    "bg_stim_ow_spacing_factor":0.8,
-    "bg_stim_opacity":0.125,
+    "blobstim_bg_nr_rings": 1, 
+    "blobstim_bg_ecc_min":0.1, 
+    "blobstim_bg_ecc_max":15, 
+    "blobstim_bg_nr_blobrows_per_ring":12, 
+    "blobstim_bg_spacing_factor":0.8,
+    "blobstim_bg_opacity":0.125,
+
+    "blobstim_fix_nr_ring": 1,
+    "blobstim_fix_ecc_min": 0.05,
+    "blobstim_fix_ecc_mac": 0.4,
+    "blobstim_fix_nr_blobrows_per_ring": 2,
+    "blobstim_fix_spacing_factor": 0.9,
+    "blobstim_fix_opacity":0.4,
 
     "pixstim_fix_tex_size": 64,
     "pixstim_fix_amplitude_exponent": 1,
@@ -43,5 +50,5 @@
     "aperture_bg_stim": 1,
     "aperture_fix_stim": 1,
     "aperture_stim_sd": 0.1225,
-    "answer_dictionary": {"g": 0, "b": 1}
+    "answer_dictionary": {"left": 0, "right": 1}
 }

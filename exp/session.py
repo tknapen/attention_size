@@ -33,8 +33,8 @@ class AttSizeSession(EyelinkSession):
         self.config = config
 
         # dict that maps button keys to answers
-        self.answer_dictionary = {'g': 0, 'b': 1}       
-        #self.answer_dictionary =  self.config['answer_dictionary']
+        #self.answer_dictionary = {'g': 0, 'b': 1} 
+        self.answer_dictionary =  self.config['answer_dictionary']     # NEW JR       
 
         # construct name for staircase file
         self.fix_staircase_file = os.path.join('data', self.subject_initials + '_' + str(self.index_number) + '_0.pkl')
@@ -53,7 +53,7 @@ class AttSizeSession(EyelinkSession):
                         bar_width=self.config['prf_checker_bar_width'],
                         tex_nr_pix=self.config['prf_checker_tex_nr_pix'],
                         flicker_frequency=self.config['prf_checker_flicker_frequency'],
-                        max_eccentricity=self.config['bg_stim_ecc_max']*self.pixels_per_degree)
+                        max_eccentricity=self.config['blobstim_bg_ecc_max']*self.pixels_per_degree)     # NEW JR
 
         size_fixation_pix = self.deg2pix(self.config['size_fixation_deg'])
         self.fixation = visual.GratingStim(self.screen,
@@ -65,14 +65,28 @@ class AttSizeSession(EyelinkSession):
                                            sf=0,
                                            pos=(0,0))
         
-        if self.task == 0:
-            this_instruction_string = """Fixate in the center of the screen. 
-                Your task is to judge whether the fixation marker 
-                is more red or more green on every stimulus presentation. """
-        elif self.task == 1:
-            this_instruction_string = """Fixate in the center of the screen.  
-                Your task is to judge whether the background 
-                is more red or more green on every stimulus presentation. """
+        if self.task == 0:  # NEW JR 
+            if self.config['which_stimulus_type'] == 0: # blobs
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the blobs in the SMALL circle are more red or more green on every stimulus presentation.\n\n> Press left for red\n> Press right for green"""
+        
+            if self.config['which_stimulus_type'] == 1: # pixelstim
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the pixels in the SMALL circle are more red or more green on every stimulus presentation.\n\n> Press left for red\n> Press right for green"""
+        
+        elif self.task == 1:  # NEW JR 
+            if self.config['which_stimulus_type'] == 0: # blobs
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the blobs in the ENTIRE circle are more red or more green on every stimulus presentation.\n\n> Press left for red\n> Press right for green"""
+        
+            if self.config['which_stimulus_type'] == 1: # pixelstim
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the pixels in the ENTIRE circle are more red or more green on every stimulus presentation.\n\n> Press left for red\n> Press right for green"""
+
+        # if self.task == 0:
+        #     this_instruction_string = """Fixate in the center of the screen. 
+        #         Your task is to judge whether the fixation marker 
+        #         is more red or more green on every stimulus presentation. """
+        # elif self.task == 1:
+        #     this_instruction_string = """Fixate in the center of the screen.  
+        #         Your task is to judge whether the background 
+        #         is more red or more green on every stimulus presentation. """
 
         self.instruction = visual.TextStim(self.screen, 
             text = this_instruction_string, 
@@ -81,8 +95,8 @@ class AttSizeSession(EyelinkSession):
             italic = True, 
             height = 30, 
             alignHoriz = 'center',
-            color=(-1,-1,1))
-        self.instruction.setSize((500,150))
+            color=(1,1,1))
+        self.instruction.setSize((700,150))
 
         mask = filters.makeMask(matrixSize=self.screen_pix_size[0], 
                                 shape='raisedCosine', 
@@ -98,7 +112,7 @@ class AttSizeSession(EyelinkSession):
                                         size=[self.screen_pix_size[1],self.screen_pix_size[1]], 
                                         pos = np.array((0.0,0.0)), 
                                         color = self.screen.background_color) 
-        print self.screen_pix_size[1]
+        #print self.screen_pix_size[1]
 
         # old aperture
         # fixation_app = filters.makeMask(matrixSize=self.screen_pix_size[0], 
@@ -122,14 +136,24 @@ class AttSizeSession(EyelinkSession):
 
 
 
-        if self.config['which_stimulus_type'] == 0: # blobs
+        if self.config['which_stimulus_type'] == 0: # blob surround stimulus    # NEW JR
             self.bg_stim = AttSizeBGStim(session=self, 
-                        nr_rings=self.config['bg_stim_nr_rings'], 
-                        ecc_min=self.config['bg_stim_ecc_min'], 
-                        ecc_max=self.config['bg_stim_ecc_max'], 
-                        nr_blob_rows_per_ring=self.config['bg_stim_nr_blob_rows_per_ring'], 
-                        row_spacing_factor=self.config['bg_stim_ow_spacing_factor'],
-                        opacity=self.config['bg_stim_opacity'])
+                        nr_rings=self.config['blobstim_bg_nr_rings'], 
+                        ecc_min=self.config['blobstim_bg_ecc_min'], 
+                        ecc_max=self.config['blobstim_bg_ecc_max'], 
+                        nr_blob_rows_per_ring=self.config['blobstim_bg_nr_blobrows_per_ring'], 
+                        row_spacing_factor=self.config['blobstim_bg_spacing_factor'],
+                        opacity=self.config['blobstim_bg_opacity'])
+
+
+            self.fix_stim = AttSizeBGStim(session=self,  # blob fixation stimulus    # NEW JR
+                        nr_rings=self.config['blobstim_fix_nr_ring'], 
+                        ecc_min=self.config['blobstim_fix_ecc_min'], 
+                        ecc_max=self.config['blobstim_fix_ecc_mac'], 
+                        nr_blob_rows_per_ring=self.config['blobstim_fix_nr_blobrows_per_ring'], 
+                        row_spacing_factor=self.config['blobstim_fix_spacing_factor'],
+                        opacity=self.config['blobstim_fix_opacity'])
+
 
         elif self.config['which_stimulus_type'] == 1: # 1/f noise surround stimulus
             self.bg_stim = AttSizeBGPixelFest(session=self,
@@ -140,7 +164,7 @@ class AttSizeSession(EyelinkSession):
                         size=self.config['pixstim_bg_size'],
                         aperture=self.config['aperture_bg_stim'])                
         
-        self.fix_stim = AttSizeBGPixelFest(session=self, # 1/f noise fixation stimulus
+            self.fix_stim = AttSizeBGPixelFest(session=self, # 1/f noise fixation stimulus
                         tex_size=self.config['pixstim_fix_tex_size'],
                         amplitude_exponent=self.config['pixstim_fix_amplitude_exponent'], 
                         n_textures=self.config['pixstim_fix_noise_n_textures'],
@@ -231,15 +255,15 @@ class AttSizeSession(EyelinkSession):
 
         this_intensity = self.fix_staircase.get_intensity()
 
-        # if self.config['which_stimulus_type'] == 0: # blobs
-        #     if self.index_number == 0: # one up one down staircase goes only from one direction
-        #         which_correct_answer = 0
-        #     elif self.index_number == 1: # three up one down staircase
-        #         which_correct_answer = np.random.randint(0,2)
+        if self.config['which_stimulus_type'] == 0: # blobs
+            if self.index_number == 0: # one up one down staircase goes only from one direction
+                which_correct_answer = 0
+            elif self.index_number == 1: # three up one down staircase
+                which_correct_answer = np.random.randint(0,2)
  
-        #     color_balance = 0.5 + ((which_correct_answer*2)-1) * this_intensity   
-        #     self.fix_stim.repopulate_condition_ring_colors(condition_nr=0, 
-        #         color_balance=color_balance)
+            color_balance = 0.5 + ((which_correct_answer*2)-1) * this_intensity   
+            self.fix_stim.repopulate_condition_ring_colors(condition_nr=0, 
+                color_balance=color_balance)
 
         # elif self.config['which_stimulus_type'] == 1: # 1/f noise
         if self.index_number == 0: # one up one down staircase goes only from one direction
@@ -247,8 +271,8 @@ class AttSizeSession(EyelinkSession):
         elif self.index_number == 1: # three up one down staircase
             which_correct_answer = np.random.randint(0,2)
         
-        answer_sign = (which_correct_answer*2)-1
-        self.fix_stim.recalculate_stim( red_boost=this_intensity*answer_sign,
+            answer_sign = (which_correct_answer*2)-1
+            self.fix_stim.recalculate_stim( red_boost=this_intensity*answer_sign,
                                         green_boost=this_intensity*-answer_sign, 
                                         blue_boost=0)
 
@@ -289,7 +313,7 @@ class AttSizeSession(EyelinkSession):
         # regardless of stimulus type, we now know the correct answer.
         if self.task == 1: # subject is actually doing bg task
             self.which_correct_answer = which_correct_answer
-            print('bg stim: ca %i, int %f '%(self.which_correct_answer, this_intensity*-answer_sign))
+            #print('bg stim: ca %i, int %f '%(self.which_correct_answer, this_intensity*-answer_sign))
 
 
     def draw_prf_stimulus(self):

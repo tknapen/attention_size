@@ -50,18 +50,6 @@ class AttSizeTrial(Trial):
         super(AttSizeTrial, self).draw()
 
 
-        # self.session.draw_prf_stimulus()
-
-        # if self.phase == 2:
-        #     self.session.bg_stim.draw()
-        #     self.session.mask_fix.draw()
-        #     self.session.fix_stim.draw()
-
-        # self.session.mask_stim.draw()          
-        # self.session.fixation_circle.draw()
-        # super(AttSizeTrial, self).draw()
-
-
     def event(self):
 
         for ev in event.getKeys():
@@ -85,10 +73,23 @@ class AttSizeTrial(Trial):
                             self.parameters['staircase_value'] = self.session.fix_staircase.get_intensity()
                         elif self.session.task == 1: # surround
                             self.parameters['staircase_value'] = self.session.bg_staircase.get_intensity()
+
                         self.parameters['answer'] = self.session.answer_dictionary[ev]
                         self.parameters['correct'] = int(self.session.answer_dictionary[ev] == self.session.which_correct_answer)
+
+
+                        ##### temp print stuff #####
+                        print ('---------------------------------')
+                        print('key answered %i '%(self.parameters['answer']))
+                        print('correct was %i '%self.session.which_correct_answer)
+
+                        if self.parameters['correct'] == 0:
+                            print ('> trial outcome was incorrect')
                         
-                        print self.parameters['correct']
+                        else:  
+                            print ('> trial outcome was correct')
+                        ##############################
+                        
 
                         # incorporate answer
                         if self.session.task == 0: # fixation
