@@ -1,3 +1,4 @@
+from __future__ import division
 from exptools.core.trial import Trial
 import os
 import exptools
@@ -38,14 +39,15 @@ class AttSizeTrial(Trial):
         if (self.phase == 0 ) * (self.ID == 0):
             self.session.instruction.draw()
 
-        self.session.draw_prf_stimulus() 
+        if self.index_number == 1:
+            self.session.draw_prf_stimulus() 
 
         if self.phase == 2:
             self.session.bg_stim.draw()             # surround condition + aperture
+            self.session.fixation_disk.draw()     # circle around fixation condition
             self.session.fix_stim.draw()            # fixation condition + aperture
-            self.session.fixation_circle.draw()     # circle around fixation condition
 
-        
+        self.session.fixation_circle.draw()     # circle around fixation condition
         self.session.mask_stim.draw()           # surround aperture
         super(AttSizeTrial, self).draw()
 

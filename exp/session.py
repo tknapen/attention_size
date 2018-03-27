@@ -1,3 +1,4 @@
+from __future__ import division
 from psychopy import visual, clock
 from psychopy import filters
 import numpy as np
@@ -25,6 +26,7 @@ class AttSizeSession(EyelinkSession):
 
         self.create_screen(full_screen=False, engine='pygaze')
         self.task = task
+        self.baseline_RG_this_subject = baseline_RG_this_subject
         config_file = os.path.join(os.path.abspath(os.getcwd()), 'default_settings.json')
 
         with open(config_file) as config_file:
@@ -95,44 +97,31 @@ class AttSizeSession(EyelinkSession):
             italic = True, 
             height = 30, 
             alignHoriz = 'center',
-            color=(1,1,1))
-        self.instruction.setSize((700,150))
+            color=(-1,-1,1))
+        self.instruction.setSize((500,150))
 
         mask = filters.makeMask(matrixSize=self.screen_pix_size[0], 
                                 shape='raisedCosine', 
-                                radius=0.9,
-                                #center=(0.0, 0.0), 
+                                radius=self.config['pixstim_bg_aperture_fraction']*(self.screen_pix_size[1]/self.screen_pix_size[0]),
+                                center=(0.0, 0.0), 
                                 range=[-1, 1], 
-                                #fringeWidth=0.125
+                                fringeWidth=self.config['aperture_stim_sd']*(self.screen_pix_size[1]/self.screen_pix_size[0])
                                 )
 
         self.mask_stim = visual.PatchStim(self.screen, 
                                         mask=-mask, 
                                         tex=None, 
-                                        size=[self.screen_pix_size[1],self.screen_pix_size[1]], 
+                                        size=[self.screen_pix_size[0],self.screen_pix_size[0]], 
                                         pos = np.array((0.0,0.0)), 
-                                        color = self.screen.background_color) 
-        #print self.screen_pix_size[1]
-
-        # old aperture
-        # fixation_app = filters.makeMask(matrixSize=self.screen_pix_size[0], 
-        #                         shape='raisedCosine', 
-        #                         radius=self.config['aperture_fix_stim'],
-        #                         center=(0.0, 0.0),
-        #                         range=[-1, 1], 
-        #                         fringeWidth=self.config['aperture_stim_sd'])
-
-        # self.mask_fix = visual.PatchStim(self.screen, 
-        #                                 mask=-fixation_app, 
-        #                                 tex=None, 
-        #                                 size=[self.screen_pix_size[1],self.screen_pix_size[1]], 
-        #                                 pos = np.array((0.0,0.0)), 
-        #                                 color = self.screen.background_color) 
-
+                                        color = (-1,-1,-1))# self.screen.background_color) 
 
         # Small fixation condition ring
-        apt = aperture=self.config['pixstim_fix_size'] / 2 
-        self.fixation_circle = visual.Circle(self.screen, radius=apt, lineColor='black')
+        self.fixation_circle = visual.Circle(self.screen, 
+            radius=self.config['size_fixation_deg']*self.pixels_per_degree/2, 
+            units='pix', lineColor='black')
+        self.fixation_disk = visual.Circle(self.screen, 
+            units='pix', radius=self.config['size_fixation_deg']*self.pixels_per_degree/2, 
+            fillColor=self.screen.background_color)
 
 
 
@@ -149,7 +138,7 @@ class AttSizeSession(EyelinkSession):
             self.fix_stim = AttSizeBGStim(session=self,  # blob fixation stimulus    # NEW JR
                         nr_rings=self.config['blobstim_fix_nr_ring'], 
                         ecc_min=self.config['blobstim_fix_ecc_min'], 
-                        ecc_max=self.config['blobstim_fix_ecc_mac'], 
+                        ecc_max=self.config['size_fixation_deg'], 
                         nr_blob_rows_per_ring=self.config['blobstim_fix_nr_blobrows_per_ring'], 
                         row_spacing_factor=self.config['blobstim_fix_spacing_factor'],
                         opacity=self.config['blobstim_fix_opacity'])
@@ -161,16 +150,16 @@ class AttSizeSession(EyelinkSession):
                         amplitude_exponent=self.config['pixstim_bg_amplitude_exponent'], 
                         n_textures=self.config['pixstim_bg_noise_n_textures'],
                         opacity=self.config['pixstim_bg_opacity'],
-                        size=self.config['pixstim_bg_size'],
-                        aperture=self.config['aperture_bg_stim'])                
+                        size=self.screen.size[1],
+                        aperture_fraction=self.config['pixstim_bg_aperture_fraction'])                
         
             self.fix_stim = AttSizeBGPixelFest(session=self, # 1/f noise fixation stimulus
                         tex_size=self.config['pixstim_fix_tex_size'],
                         amplitude_exponent=self.config['pixstim_fix_amplitude_exponent'], 
                         n_textures=self.config['pixstim_fix_noise_n_textures'],
                         opacity=self.config['pixstim_fix_opacity'],
-                        size=self.config['pixstim_fix_size'],
-                        aperture=self.config['aperture_fix_stim'])     
+                        size=(1.0/self.config['pixstim_fix_aperture_fraction']) * self.config['size_fixation_deg']*self.pixels_per_degree,
+                        aperture_fraction=self.config['pixstim_fix_aperture_fraction'])     
 
 
     def create_trials(self):
@@ -265,12 +254,12 @@ class AttSizeSession(EyelinkSession):
             self.fix_stim.repopulate_condition_ring_colors(condition_nr=0, 
                 color_balance=color_balance)
 
-        # elif self.config['which_stimulus_type'] == 1: # 1/f noise
-        if self.index_number == 0: # one up one down staircase goes only from one direction
-            which_correct_answer = 0
-        elif self.index_number == 1: # three up one down staircase
-            which_correct_answer = np.random.randint(0,2)
-        
+        elif self.config['which_stimulus_type'] == 1: # 1/f noise
+            if self.index_number == 0: # one up one down staircase goes only from one direction
+                which_correct_answer = 0
+            elif self.index_number == 1: # three up one down staircase
+                which_correct_answer = np.random.randint(0,2)
+            
             answer_sign = (which_correct_answer*2)-1
             self.fix_stim.recalculate_stim( red_boost=this_intensity*answer_sign,
                                         green_boost=this_intensity*-answer_sign, 
@@ -302,18 +291,21 @@ class AttSizeSession(EyelinkSession):
         elif self.config['which_stimulus_type'] == 1: # 1/f noise
             if self.index_number == 0: # one up one down staircase goes only from one direction
                 which_correct_answer = 0
+                answer_sign = (which_correct_answer*2)-1
+                self.bg_stim.recalculate_stim(  red_boost=-this_intensity,
+                                                green_boost=this_intensity, 
+                                                blue_boost=0)                
             elif self.index_number == 1: # three up one down staircase
                 which_correct_answer = np.random.randint(0,2)
-            
-            answer_sign = (which_correct_answer*2)-1
-            self.bg_stim.recalculate_stim(  red_boost=this_intensity*answer_sign,
-                                            green_boost=this_intensity*-answer_sign, 
-                                            blue_boost=0)
+                answer_sign = (which_correct_answer*2)-1
+                self.bg_stim.recalculate_stim(  red_boost=self.baseline_RG_this_subject-this_intensity,
+                                                green_boost=self.baseline_RG_this_subject+this_intensity, 
+                                                blue_boost=0)
 
         # regardless of stimulus type, we now know the correct answer.
         if self.task == 1: # subject is actually doing bg task
             self.which_correct_answer = which_correct_answer
-            #print('bg stim: ca %i, int %f '%(self.which_correct_answer, this_intensity*-answer_sign))
+            print('bg stim: ca %i, int %f '%(self.which_correct_answer, this_intensity*-answer_sign))
 
 
     def draw_prf_stimulus(self):
@@ -346,6 +338,7 @@ class AttSizeSession(EyelinkSession):
         while not self.stopped:
 
             parameters = copy.copy(self.config)
+            parameters['baseline_RG'] = self.baseline_RG_this_subject
 
             trial = AttSizeTrial(ti=self.ti,
                            config=self.config,
