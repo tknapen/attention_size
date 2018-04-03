@@ -5,7 +5,7 @@ import appnope
 
 def main():
     initials = sys.argv[1]
-    baseline_RF = float(sys.argv[2])
+    baseline_RG = float(sys.argv[2])
     # raw_input('Your initials: ')
     #run_nr = int(raw_input('Run number: '))
     #scanner = raw_input('Are you in the scanner (y/n)?: ')
@@ -17,8 +17,8 @@ def main():
     # task = int(raw_input('fixation (0) or surround (1) task?: '))
 
     # initials = 'tk'
-    index_number = 0
-    task = 1
+    index_number = 1        # 0 is OneUpOneDown, 1 is ThreeUpOneDown
+    task = 1                # 0 is fixation task, 1 is surround task
     appnope.nope()
 
     ts = AttSizeSession(subject_initials=initials, index_number=index_number, task=task, baseline_RG_this_subject=baseline_RG, tracker_on=False)

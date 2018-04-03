@@ -5,7 +5,7 @@
     "post_fix_time":0.5,
     "size_fixation_deg":0.4,
 
-    "which_stimulus_type": 1,    
+    "which_stimulus_type": 0,    
 
     "prf_checker_cycles_in_bar":4, 
     "prf_checker_bar_width":0.125, 
@@ -30,13 +30,13 @@
     "pixstim_fix_tex_size": 64,
     "pixstim_fix_amplitude_exponent": 1,
     "pixstim_fix_noise_n_textures": 4,
-    "pixstim_fix_opacity": 0.25,
+    "pixstim_fix_opacity": 0.9,
     "pixstim_fix_aperture_fraction": 0.8,
 
     "pixstim_bg_tex_size": 1024,
     "pixstim_bg_amplitude_exponent": 1,
     "pixstim_bg_noise_n_textures": 4,
-    "pixstim_bg_opacity": 0.25,
+    "pixstim_bg_opacity": 0.5,
     "pixstim_bg_aperture_fraction": 0.95,
 
     "1u1d_center_staircase_initial_value": 0.1,
@@ -46,5 +46,5 @@
     "3u1d_surround_staircase_initial_value": 0.2,
 
     "aperture_stim_sd": 0.1225,
-    "answer_dictionary": {"left": 0, "right": 1}
+    "answer_dictionary": {"g": 0, "r": 1}
 }

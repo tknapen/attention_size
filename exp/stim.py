@@ -213,6 +213,8 @@ class AttSizeBGPixelFest(object):
         return textures
 
     def recalculate_stim(self, red_boost=1, green_boost=1, blue_boost=0, opacity=None):
+        print red_boost
+        print green_boost
         which_textures = np.random.choice(self.n_textures, 3, replace=False)
         orientation = np.random.choice([0,90,180,270], 1)
 
@@ -233,7 +235,11 @@ class AttSizeBGPixelFest(object):
                                         size=[self.size, self.size], 
                                         pos = np.array((0.0,0.0)),
                                         ori=orientation,
-                                        color=(1.0, 1.0, 1.0))      
+                                        color=(1.0, 1.0, 1.0))     
+
+        print red_boost
+        print green_boost
+        print ('---------------------------------')
 
     def draw(self):
         self.noise_fest_stim.draw()     # NEW JR    (draw object + mask)

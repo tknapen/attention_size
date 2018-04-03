@@ -39,16 +39,16 @@ class AttSizeTrial(Trial):
         if (self.phase == 0 ) * (self.ID == 0):
             self.session.instruction.draw()
 
-        if self.index_number == 1:
+        if self.session.index_number == 1:     
             self.session.draw_prf_stimulus() 
 
         if self.phase == 2:
             self.session.bg_stim.draw()             # surround condition + aperture
-            self.session.fixation_disk.draw()     # circle around fixation condition
+            self.session.fixation_disk.draw()       # disk behind fixation condition
             self.session.fix_stim.draw()            # fixation condition + aperture
 
-        self.session.fixation_circle.draw()     # circle around fixation condition
-        self.session.mask_stim.draw()           # surround aperture
+        self.session.fixation_circle.draw()          # circle around fixation condition
+        self.session.mask_stim.draw()                # surround aperture
         super(AttSizeTrial, self).draw()
 
 
@@ -74,22 +74,26 @@ class AttSizeTrial(Trial):
                         if self.session.task == 0: # fixation
                             self.parameters['staircase_value'] = self.session.fix_staircase.get_intensity()
                         elif self.session.task == 1: # surround
+
                             self.parameters['staircase_value'] = self.session.bg_staircase.get_intensity()
+
+                        print('staircase intensity %f '%(self.parameters['staircase_value']))
 
                         self.parameters['answer'] = self.session.answer_dictionary[ev]
                         self.parameters['correct'] = int(self.session.answer_dictionary[ev] == self.session.which_correct_answer)
 
 
                         ##### temp print stuff #####
-                        print ('---------------------------------')
-                        print('key answered %i '%(self.parameters['answer']))
-                        print('correct was %i '%self.session.which_correct_answer)
-
-                        if self.parameters['correct'] == 0:
-                            print ('> trial outcome was incorrect')
                         
-                        else:  
-                            print ('> trial outcome was correct')
+                        #print ('---------------------------------')
+                        #print('key answered %i '%(self.parameters['answer']))
+                        #print('correct was %i '%self.session.which_correct_answer)
+
+                        # if self.parameters['correct'] == 0:
+                        #     print ('> trial outcome was incorrect')
+                        
+                        # else:  
+                        #     print ('> trial outcome was correct')
                         ##############################
                         
 

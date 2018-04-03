@@ -20,7 +20,7 @@ from stim import AttSizeBGStim, AttSizeBGPixelFest, PRFStim
 
 class AttSizeSession(EyelinkSession):
 
-    def __init__(self, subject_initials, index_number, task, tracker_on, *args, **kwargs):
+    def __init__(self, subject_initials, index_number, task, baseline_RG_this_subject, tracker_on, *args, **kwargs):
 
         super(AttSizeSession, self).__init__(subject_initials, index_number, tracker_on, *args, **kwargs)
 
@@ -236,6 +236,11 @@ class AttSizeSession(EyelinkSession):
         self.set_fix_stimulus_values()
 
 
+
+##################################################################################
+## Fixation conditions - value staircases
+##################################################################################
+
     def set_fix_stimulus_values(self):
         """set_fix_stimulus_values sets the value of the fixation stimulus based on the fix_staircase.
         It has to take into account the stimulus type and type of staircase to construct the values,
@@ -244,9 +249,18 @@ class AttSizeSession(EyelinkSession):
 
         this_intensity = self.fix_staircase.get_intensity()
 
+        ##################################################################################
+        ## Blobs OneUpOneDown Staircase - fixation
+        ##################################################################################
+
         if self.config['which_stimulus_type'] == 0: # blobs
             if self.index_number == 0: # one up one down staircase goes only from one direction
                 which_correct_answer = 0
+
+        ##################################################################################
+        ## Blobs ThreeUpOneDown Staircase - fixation
+        ##################################################################################    
+
             elif self.index_number == 1: # three up one down staircase
                 which_correct_answer = np.random.randint(0,2)
  
@@ -254,21 +268,38 @@ class AttSizeSession(EyelinkSession):
             self.fix_stim.repopulate_condition_ring_colors(condition_nr=0, 
                 color_balance=color_balance)
 
+        ##################################################################################
+        ## Noisestim OneUpOneDown Staircase - fixation
+        ##################################################################################
+
         elif self.config['which_stimulus_type'] == 1: # 1/f noise
             if self.index_number == 0: # one up one down staircase goes only from one direction
-                which_correct_answer = 0
+                which_correct_answer = 0                                        # added JR
+                answer_sign = (which_correct_answer*2)-1                        # added JR
+                self.fix_stim.recalculate_stim(  red_boost=-this_intensity,     # added JR
+                                                green_boost=this_intensity,     # added JR
+                                                blue_boost=0)                   # added JR
+
+        ##################################################################################
+        ## Noisestim ThreeUpOneDown Staircase - fixation
+        ##################################################################################
+
             elif self.index_number == 1: # three up one down staircase
                 which_correct_answer = np.random.randint(0,2)
-            
-            answer_sign = (which_correct_answer*2)-1
-            self.fix_stim.recalculate_stim( red_boost=this_intensity*answer_sign,
-                                        green_boost=this_intensity*-answer_sign, 
-                                        blue_boost=0)
+                answer_sign = (which_correct_answer*2)-1
+                self.fix_stim.recalculate_stim(  red_boost=self.baseline_RG_this_subject-(this_intensity*answer_sign),     # added JR
+                                                green_boost=self.baseline_RG_this_subject+(this_intensity*answer_sign),    # added JR
+                                                blue_boost=0)
 
         # regardless of stimulus type, we now know the correct answer.
         if self.task == 0: # subject is actually doing fixation task
             self.which_correct_answer = which_correct_answer
-            print('fix stim: ca %i, int %f '%(self.which_correct_answer, this_intensity))
+            print('fix stim: ca %i, int %f '%(self.which_correct_answer, this_intensity))   
+
+
+##################################################################################
+## Surround conditions - value staircases
+##################################################################################
 
     def set_background_stimulus_values(self):
         """set_background_stimulus_values sets the value of the fixation stimulus based on the fix_staircase.
@@ -278,9 +309,18 @@ class AttSizeSession(EyelinkSession):
 
         this_intensity = self.bg_staircase.get_intensity()
 
+        ##################################################################################
+        ## Blobs OneUpOneDown Staircase - surround
+        ##################################################################################
+
         if self.config['which_stimulus_type'] == 0: # blobs
             if self.index_number == 0: # one up one down staircase goes only from one direction
                 which_correct_answer = 0
+
+        ##################################################################################
+        ## Blobs ThreeUpOneDown Staircase - surround
+        ##################################################################################
+                
             elif self.index_number == 1: # three up one down staircase
                 which_correct_answer = np.random.randint(0,2)
  
@@ -288,24 +328,34 @@ class AttSizeSession(EyelinkSession):
             self.bg_stim.repopulate_condition_ring_colors(condition_nr=0, 
                 color_balance=color_balance)
 
+        ##################################################################################
+        ## Noisestim OneUpOneDown Staircase - surround
+        ##################################################################################
+
         elif self.config['which_stimulus_type'] == 1: # 1/f noise
             if self.index_number == 0: # one up one down staircase goes only from one direction
                 which_correct_answer = 0
                 answer_sign = (which_correct_answer*2)-1
                 self.bg_stim.recalculate_stim(  red_boost=-this_intensity,
                                                 green_boost=this_intensity, 
-                                                blue_boost=0)                
+                                                blue_boost=0)    
+
+        ##################################################################################
+        ## Noisestim ThreeUpOneDown Staircase - surround
+        ##################################################################################
+                
             elif self.index_number == 1: # three up one down staircase
                 which_correct_answer = np.random.randint(0,2)
                 answer_sign = (which_correct_answer*2)-1
-                self.bg_stim.recalculate_stim(  red_boost=self.baseline_RG_this_subject-this_intensity,
-                                                green_boost=self.baseline_RG_this_subject+this_intensity, 
+                self.bg_stim.recalculate_stim(  red_boost=self.baseline_RG_this_subject-(this_intensity*answer_sign),
+                                                green_boost=self.baseline_RG_this_subject+(this_intensity*answer_sign), 
                                                 blue_boost=0)
 
         # regardless of stimulus type, we now know the correct answer.
         if self.task == 1: # subject is actually doing bg task
             self.which_correct_answer = which_correct_answer
             print('bg stim: ca %i, int %f '%(self.which_correct_answer, this_intensity*-answer_sign))
+
 
 
     def draw_prf_stimulus(self):
