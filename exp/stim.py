@@ -132,7 +132,7 @@ class AttSizeBGStim(object):
         this_ring_bool = self.element_array_np[:,-1] == condition_nr
         nr_elements_in_condition = this_ring_bool.sum()
 
-        nr_signal_elements = int(nr_elements_in_condition * color_balance)
+        nr_signal_elements = int(nr_elements_in_condition * (0.5+color_balance))
         ordered_signals = np.r_[np.ones(nr_signal_elements), -np.ones(nr_elements_in_condition-nr_signal_elements)]
         np.random.shuffle(ordered_signals)
 
@@ -213,8 +213,6 @@ class AttSizeBGPixelFest(object):
         return textures
 
     def recalculate_stim(self, red_boost=1, green_boost=1, blue_boost=0, opacity=None):
-        print red_boost
-        print green_boost
         which_textures = np.random.choice(self.n_textures, 3, replace=False)
         orientation = np.random.choice([0,90,180,270], 1)
 
@@ -236,10 +234,6 @@ class AttSizeBGPixelFest(object):
                                         pos = np.array((0.0,0.0)),
                                         ori=orientation,
                                         color=(1.0, 1.0, 1.0))     
-
-        print red_boost
-        print green_boost
-        print ('---------------------------------')
 
     def draw(self):
         self.noise_fest_stim.draw()     # NEW JR    (draw object + mask)

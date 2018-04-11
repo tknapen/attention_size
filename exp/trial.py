@@ -28,10 +28,11 @@ class AttSizeTrial(Trial):
         self.parameters = parameters
         # these are placeholders, to be filled in later
         self.parameters['answer'] = -1
-        self.parameters['staircase_value'] = 0
-        self.parameters['correct'] = -1
 
-        self.session.set_background_stimulus_values()
+        self.session.set_background_stimulus_value(color_balance=self.parameters['bg_trial_stimulus_value'])
+        self.session.set_fix_stimulus_value(color_balance=self.parameters['fix_trial_stimulus_value'])
+
+        print("%f, %f"%(self.parameters['fix_trial_stimulus_value'], self.parameters['bg_trial_stimulus_value']))
 
     def draw(self, *args, **kwargs):
 
@@ -39,12 +40,12 @@ class AttSizeTrial(Trial):
         if (self.phase == 0 ) * (self.ID == 0):
             self.session.instruction.draw()
 
-        if self.session.index_number == 1:     
-            self.session.draw_prf_stimulus() 
+        self.session.draw_prf_stimulus() 
 
         if self.phase == 2:
             self.session.bg_stim.draw()             # surround condition + aperture
-            self.session.fixation_disk.draw()       # disk behind fixation condition
+        self.session.fixation_disk.draw()       # disk behind fixation condition
+        if self.phase == 2:
             self.session.fix_stim.draw()            # fixation condition + aperture
 
         self.session.fixation_circle.draw()          # circle around fixation condition
@@ -70,36 +71,6 @@ class AttSizeTrial(Trial):
                         self.stop()
                 if ev in list(self.session.answer_dictionary.keys()): # staircase answers
                     if self.parameters['answer'] == -1: # only incorporate answer if not answered yet.
-                        # and, only incorporate answer into staircase pertaining to present task
-                        if self.session.task == 0: # fixation
-                            self.parameters['staircase_value'] = self.session.fix_staircase.get_intensity()
-                        elif self.session.task == 1: # surround
-
-                            self.parameters['staircase_value'] = self.session.bg_staircase.get_intensity()
-
-                        print('staircase intensity %f '%(self.parameters['staircase_value']))
-
                         self.parameters['answer'] = self.session.answer_dictionary[ev]
-                        self.parameters['correct'] = int(self.session.answer_dictionary[ev] == self.session.which_correct_answer)
 
-
-                        ##### temp print stuff #####
-                        
-                        #print ('---------------------------------')
-                        #print('key answered %i '%(self.parameters['answer']))
-                        #print('correct was %i '%self.session.which_correct_answer)
-
-                        # if self.parameters['correct'] == 0:
-                        #     print ('> trial outcome was incorrect')
-                        
-                        # else:  
-                        #     print ('> trial outcome was correct')
-                        ##############################
-                        
-
-                        # incorporate answer
-                        if self.session.task == 0: # fixation
-                            self.session.fix_staircase.answer(correct=self.parameters['correct'])
-                        elif self.session.task == 1: # surround
-                            self.session.bg_staircase.answer(correct=self.parameters['correct'])
             super(AttSizeTrial, self).key_event(ev)

@@ -5,7 +5,6 @@ import appnope
 
 def main():
     initials = sys.argv[1]
-    baseline_RG = float(sys.argv[2])
     # raw_input('Your initials: ')
     #run_nr = int(raw_input('Run number: '))
     #scanner = raw_input('Are you in the scanner (y/n)?: ')
@@ -21,7 +20,7 @@ def main():
     task = 1                # 0 is fixation task, 1 is surround task
     appnope.nope()
 
-    ts = AttSizeSession(subject_initials=initials, index_number=index_number, task=task, baseline_RG_this_subject=baseline_RG, tracker_on=False)
+    ts = AttSizeSession(subject_initials=initials, index_number=index_number, task=task, tracker_on=False)
     ts.run()
 
 if __name__ == '__main__':
