@@ -4,6 +4,7 @@ import os
 import exptools
 import json
 from psychopy import logging, visual, event
+import math
 import numpy as np
 
 
@@ -33,6 +34,9 @@ class AttSizeTrial(Trial):
         # these are placeholders, to be filled in later
         self.parameters['answer'] = -1
 
+        if self.session.config['in_scanner'] == 0:
+            self.t_time = self.session.clock.getTime()
+
         self.session.set_background_stimulus_value(color_balance=self.parameters['bg_trial_stimulus_value'])
         self.session.set_fix_stimulus_value(color_balance=self.parameters['fix_trial_stimulus_value'])
 
@@ -44,7 +48,13 @@ class AttSizeTrial(Trial):
         if (self.phase == 0 ) * (self.ID == 0):
             self.session.instruction.draw()
 
-        self.session.draw_prf_stimulus() 
+        # self.session.draw_prf_stimulus() 
+        if (self.parameters['bar_orientation'] != -1) and (self.phase != 0):
+            bar_time = self.parameters['pos_in_bar_trajectory'] + (self.session.clock.getTime()-self.t_time)/self.parameters['TR']
+            self.session.prf_stim.draw(time=bar_time, 
+                                period=self.parameters['prf_stim_barpass_duration'], 
+                                orientation=self.parameters['bar_orientation'],
+                                position_scaling=1+self.parameters["prf_checker_bar_width"])
 
         if self.phase == 2:
             self.session.bg_stim.draw()             # surround condition + aperture
@@ -71,6 +81,7 @@ class AttSizeTrial(Trial):
                     if self.phase == 0:
                         if self.ID == 0:
                             self.session.run_time = self.session.clock.getTime()
+                        self.t_time = self.session.clock.getTime()
                         self.phase_forward()
                     elif self.phase == 3:
                         self.stop()

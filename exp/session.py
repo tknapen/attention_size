@@ -9,6 +9,7 @@ import glob
 import copy
 import scipy
 import pickle
+import math
 
 import exptools
 from exptools.core.session import EyelinkSession
@@ -248,6 +249,8 @@ class AttSizeSession(EyelinkSession):
             parameters = copy.copy(self.config)
             parameters['fix_trial_stimulus_value'] = self.fix_trial_stimulus_values[self.ti]
             parameters['bg_trial_stimulus_value'] = self.bg_trial_stimulus_values[self.ti]
+            parameters['pos_in_bar_trajectory'] = self.ti % self.config['prf_stim_barpass_duration']
+            parameters['bar_orientation'] = self.config['prf_stim_sequence_angles'][int(math.floor(self.ti / self.config['prf_stim_barpass_duration']))]
 
             trial = AttSizeTrial(ti=self.ti,
                            config=self.config,
@@ -258,6 +261,8 @@ class AttSizeSession(EyelinkSession):
             trial.run()
             self.ti += 1
 
+            if self.ti == len(self.fix_trial_stimulus_values):
+                self.stopped = True
             if self.stopped == True:
                 break
 

@@ -2,7 +2,7 @@
     "TR":1.2,
     "fix_time":0.5,
     "stim_time":0.2,
-    "post_fix_time":0.3,
+    "post_fix_time":0.45,
     "size_fixation_deg":0.4,
 
     "which_stimulus_type": 1,    
@@ -45,6 +45,6 @@
     "psychometric_curve_interval": 0.15,
     "psychometric_curve_nr_steps_oneside": 6,
 
-    "in_scanner": 1
+    "in_scanner": 0
 
 }
