@@ -17,7 +17,7 @@ class AttSizeTrial(Trial):
             if self.ID == 0:
                 phase_durations = [1800, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
             else:
-                phase_durations = [self.config['TR'] - (parameters['fix_time'] + parameters['stim_time'] + parameters['post_fix_time']), 
+                phase_durations = [parameters['TR'] - (parameters['fix_time'] + parameters['stim_time'] + parameters['post_fix_time']), 
                                     parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
         else:
             phase_durations = [1800, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
