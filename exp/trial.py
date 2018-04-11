@@ -13,10 +13,13 @@ class AttSizeTrial(Trial):
 
         self.ID = ti
 
-        if self.ID == 0:
-            phase_durations = [180, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
+        if self.config['in_scanner'] == 0:
+            if self.ID == 0:
+                phase_durations = [1800, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
+            else:
+                phase_durations = [0.2, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
         else:
-            phase_durations = [-0.0001, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
+            phase_durations = [1800, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
 
         super(
             AttSizeTrial,
@@ -64,8 +67,9 @@ class AttSizeTrial(Trial):
                     self.session.stopped = True
                     print 'run canceled by user'
                 if ev in ['space', ' ', 't']:
-                    if self.phase == 0 and self.ID == 0:
-                        self.session.run_time = self.session.clock.getTime()
+                    if self.phase == 0:
+                        if self.ID == 0:
+                            self.session.run_time = self.session.clock.getTime()
                         self.phase_forward()
                     elif self.phase == 3:
                         self.stop()
