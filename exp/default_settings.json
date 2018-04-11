@@ -1,8 +1,8 @@
 {
-    "TR":1.5,
-    "fix_time":0.611,
-    "stim_time":0.25,
-    "post_fix_time":0.1,
+    "TR":1.2,
+    "fix_time":0.5,
+    "stim_time":0.2,
+    "post_fix_time":0.3,
     "size_fixation_deg":0.4,
 
     "which_stimulus_type": 1,    
@@ -12,7 +12,7 @@
     "prf_checker_tex_nr_pix":512, 
     "prf_checker_flicker_frequency":6,
     "prf_stim_sequence_angles":[-1, 0, -1, 45, 270, -1,  315, 180, -1,  135,   90, -1,  225, -1],
-    "prf_stim_barpass_duration":20,
+    "prf_stim_barpass_duration":24,
 
     "blobstim_bg_nr_rings": 1, 
     "blobstim_bg_ecc_min":0.1, 
@@ -45,6 +45,6 @@
     "psychometric_curve_interval": 0.15,
     "psychometric_curve_nr_steps_oneside": 6,
 
-    "in_scanner": 0
+    "in_scanner": 1
 
 }

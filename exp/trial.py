@@ -36,7 +36,7 @@ class AttSizeTrial(Trial):
         self.session.set_background_stimulus_value(color_balance=self.parameters['bg_trial_stimulus_value'])
         self.session.set_fix_stimulus_value(color_balance=self.parameters['fix_trial_stimulus_value'])
 
-        print("%f, %f"%(self.parameters['fix_trial_stimulus_value'], self.parameters['bg_trial_stimulus_value']))
+        #print("%f, %f"%(self.parameters['fix_trial_stimulus_value'], self.parameters['bg_trial_stimulus_value']))
 
     def draw(self, *args, **kwargs):
 
@@ -77,5 +77,5 @@ class AttSizeTrial(Trial):
                 if ev in list(self.session.answer_dictionary.keys()): # staircase answers
                     if self.parameters['answer'] == -1: # only incorporate answer if not answered yet.
                         self.parameters['answer'] = self.session.answer_dictionary[ev]
-
+            print self.parameters['answer']
             super(AttSizeTrial, self).key_event(ev)
