@@ -13,11 +13,12 @@ class AttSizeTrial(Trial):
 
         self.ID = ti
 
-        if self.config['in_scanner'] == 0:
+        if parameters['in_scanner'] == 0:
             if self.ID == 0:
                 phase_durations = [1800, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
             else:
-                phase_durations = [0.2, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
+                phase_durations = [self.config['TR'] - (parameters['fix_time'] + parameters['stim_time'] + parameters['post_fix_time']), 
+                                    parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
         else:
             phase_durations = [1800, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
 
