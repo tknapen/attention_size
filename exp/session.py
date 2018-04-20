@@ -25,7 +25,7 @@ class AttSizeSession(EyelinkSession):
 
         super(AttSizeSession, self).__init__(subject_initials, index_number, tracker_on, *args, **kwargs)
 
-        self.create_screen(full_screen=False, engine='pygaze')
+        self.create_screen(full_screen=True, engine='pygaze')
         self.task = task
         config_file = os.path.join(os.path.abspath(os.getcwd()), 'default_settings.json')
 
@@ -99,7 +99,7 @@ class AttSizeSession(EyelinkSession):
                                         tex=None, 
                                         size=[self.screen_pix_size[0],self.screen_pix_size[0]], 
                                         pos = np.array((0.0,0.0)), 
-                                        color = (-1,-1,-1))# self.screen.background_color) 
+                                        color = self.screen.background_color)
 
         # Small fixation condition ring
         self.fixation_circle = visual.Circle(self.screen, 
@@ -155,10 +155,13 @@ class AttSizeSession(EyelinkSession):
         ## timings etc for the bar passes
         ##################################################################################
 
-        self.prf_bar_pass_times = np.r_[0, np.cumsum(np.array([self.config['prf_stim_barpass_duration']*self.config['TR'] 
-                                        for prf_ori in self.config['prf_stim_sequence_angles']])), 1e7]
+        blank_trials = np.array(self.config['prf_stim_sequence_angles']) == -1
+        trial_durations = np.ones(len(self.config['prf_stim_sequence_angles'])) * self.config['prf_stim_barpass_duration']
+        trial_durations[blank_trials] = self.config['prf_stim_blank_duration']
 
-        
+        self.prf_bar_pass_times = np.r_[0, np.cumsum(np.array([duration*self.config['TR'] 
+                                        for duration in trial_durations])), 1e7]
+
         self.stimulus_values = np.unique(np.r_[np.linspace(0,self.config['psychometric_curve_interval'], self.config['psychometric_curve_nr_steps_oneside']),
                                     -np.linspace(0,self.config['psychometric_curve_interval'], self.config['psychometric_curve_nr_steps_oneside'])])
 
@@ -220,7 +223,7 @@ class AttSizeSession(EyelinkSession):
 
         elif self.config['which_stimulus_type'] == 1: # 1/f noise
             self.bg_stim.recalculate_stim(  red_boost=-color_balance,
-                                                green_boost=color_balance, 
+                                                green_boost=color_balance,  # color change
                                                 blue_boost=0)    
 
 

@@ -16,8 +16,8 @@ def main():
     # task = int(raw_input('fixation (0) or surround (1) task?: '))
 
     # initials = 'tk'
-    index_number = 1        # 0 is OneUpOneDown, 1 is ThreeUpOneDown
-    task = 1                # 0 is fixation task, 1 is surround task
+    index_number = 1        
+    task = 0                # 0 is fixation task, 1 is surround task
     appnope.nope()
 
     ts = AttSizeSession(subject_initials=initials, index_number=index_number, task=task, tracker_on=False)
