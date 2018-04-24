@@ -35,7 +35,7 @@ class AttSizeSession(EyelinkSession):
         self.config = config
 
         # dict that maps button keys to answers
-        self.answer_dictionary =  self.config['answer_dictionary']     # NEW JR       
+        self.answer_dictionary =  self.config['answer_dictionary']            
 
         self.create_stimuli()
         self.create_trials()
@@ -111,7 +111,7 @@ class AttSizeSession(EyelinkSession):
 
 
 
-        if self.config['which_stimulus_type'] == 0: # blob surround stimulus    # NEW JR
+        if self.config['which_stimulus_type'] == 0: # blob surround stimulus    
             self.bg_stim = AttSizeBGStim(session=self, 
                         nr_rings=self.config['blobstim_bg_nr_rings'], 
                         ecc_min=self.config['blobstim_bg_ecc_min'], 

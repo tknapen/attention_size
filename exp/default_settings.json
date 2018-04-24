@@ -31,7 +31,7 @@
     "pixstim_fix_tex_size": 64,
     "pixstim_fix_amplitude_exponent": 1,
     "pixstim_fix_noise_n_textures": 8,
-    "pixstim_fix_opacity": 0.4,
+    "pixstim_fix_opacity": 0.2,
     "pixstim_fix_aperture_fraction": 0.2,
 
     "pixstim_bg_tex_size": 1024,
