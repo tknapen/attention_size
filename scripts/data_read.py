@@ -5,6 +5,7 @@
 
 '''
 - Add gender + age + task variables to participant info
+
 - Double check psychometric curves with:
     - psychometric_curve_interval: 0.15,
     - psychometric_curve_nr_steps_oneside: 6,
@@ -67,7 +68,7 @@ def percentagecorrect(a, b):
 # Read in datafile
 ####################################################################################################
 
-file = 'exp/data/RJ_1_2018-04-21_11.03.11_outputDict.pkl'
+file = '../exp/data/RJ_1_2018-04-21_11.28.24_outputDict.pkl'
 subj = file[-39:-37]
 
 with open(file, 'r') as f:
