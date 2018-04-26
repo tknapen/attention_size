@@ -40,24 +40,23 @@ class AttSizeTrial(Trial):
         self.session.set_background_stimulus_value(color_balance=self.parameters['bg_trial_stimulus_value'])
         self.session.set_fix_stimulus_value(color_balance=self.parameters['fix_trial_stimulus_value'])
 
-        #print("%f, %f"%(self.parameters['fix_trial_stimulus_value'], self.parameters['bg_trial_stimulus_value']))
-
     def draw(self, *args, **kwargs):
-
+        # self.session.background_disk.setFillColor(self.session.screen.background_color)
         # draw additional stimuli:
         if (self.phase == 0 ) * (self.ID == 0):
             self.session.instruction.draw()
-
+        
+        if self.phase == 2:  
+            self.session.bg_stim.draw()             # surround condition + aperture
         # self.session.draw_prf_stimulus() 
         if (self.parameters['bar_orientation'] != -1) and (self.phase != 0):
+
             bar_time = self.parameters['pos_in_bar_trajectory'] + (self.session.clock.getTime()-self.t_time)/self.parameters['TR']
             self.session.prf_stim.draw(time=bar_time, 
                                 period=self.parameters['prf_stim_barpass_duration'], 
                                 orientation=self.parameters['bar_orientation'],
                                 position_scaling=1+self.parameters["prf_checker_bar_width"])
-
-        if self.phase == 2:
-            self.session.bg_stim.draw()             # surround condition + aperture
+            
         self.session.fixation_disk.draw()       # disk behind fixation condition
         if self.phase == 2:
             self.session.fix_stim.draw()            # fixation condition + aperture
@@ -83,10 +82,7 @@ class AttSizeTrial(Trial):
                             self.session.run_time = self.session.clock.getTime()
                         self.t_time = self.session.clock.getTime()
                         self.phase_forward()
-                    elif self.phase == 3:
-                        self.stop()
                 if ev in list(self.session.answer_dictionary.keys()): # staircase answers
                     if self.parameters['answer'] == -1: # only incorporate answer if not answered yet.
                         self.parameters['answer'] = self.session.answer_dictionary[ev]
-            print self.parameters['answer']
             super(AttSizeTrial, self).key_event(ev)

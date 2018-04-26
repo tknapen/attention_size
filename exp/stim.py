@@ -206,7 +206,7 @@ class AttSizeBGPixelFest(object):
             textures[nt] -= textures[nt].mean()
             # scale and clip to be within [-1,1]
             textures[nt] /= textures[nt].std()*6.666
-            textures[nt] += 0.5
+            # textures[nt] += 0.5
             textures[nt][textures[nt]<0] = 0
             textures[nt][textures[nt]>1] = 1
 
@@ -222,7 +222,7 @@ class AttSizeBGPixelFest(object):
         tex = np.zeros((int(self.tex_size), int(self.tex_size), 4))
         tex[:,:,0] = red_boost + self.basic_textures[which_textures[0]]
         tex[:,:,1] = green_boost + self.basic_textures[which_textures[1]]
-        tex[:,:,2] = blue_boost + self.basic_textures[which_textures[2]]
+        # tex[:,:,2] = blue_boost + self.basic_textures[which_textures[2]]
         tex[:,:,3] = opacity * np.ones(self.basic_textures[0].shape)
 
         tex[tex>1] = 1
@@ -265,13 +265,21 @@ class PRFStim(object):
         self.sqr_tex[:,int(self.tex_nr_pix*(bar_width/2)+self.tex_nr_pix/2):] = 0
         self.sqr_tex[:,:int(-self.tex_nr_pix*(bar_width/2)+self.tex_nr_pix/2)] = 0
 
+        ch1_tex = np.ones((tex_nr_pix, tex_nr_pix, 4))
+        ch2_tex = np.ones((tex_nr_pix, tex_nr_pix, 4))
 
-        self.checkerboard_1 = visual.GratingStim(self.session.screen, tex=self.sqr_tex, mask=None,
+        ch1_tex[:,:,[0,1,2]] = np.ones((tex_nr_pix, tex_nr_pix, 3)) * self.sqr_tex[:,:,np.newaxis]
+        ch2_tex[:,:,[0,1,2]] = np.ones((tex_nr_pix, tex_nr_pix, 3)) * -self.sqr_tex[:,:,np.newaxis]
+
+        ch1_tex[self.sqr_tex==0,3] = 0
+        ch2_tex[self.sqr_tex==0,3] = 0
+
+        self.checkerboard_1 = visual.GratingStim(self.session.screen, tex=ch1_tex, mask=None,
                           color=[1.0, 1.0, 1.0],
                           opacity=1.0,
                           size=(self.session.screen.size[1], self.session.screen.size[1]),
                           ori=0)
-        self.checkerboard_2 = visual.GratingStim(self.session.screen, tex=-self.sqr_tex, mask=None,
+        self.checkerboard_2 = visual.GratingStim(self.session.screen, tex=ch2_tex, mask=None,
                           color=[1.0, 1.0, 1.0],
                           opacity=1.0,
                           size=(self.session.screen.size[1], self.session.screen.size[1]),

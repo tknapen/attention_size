@@ -1,6 +1,6 @@
 {
     "TR":1.2,
-    "fix_time":0.5,
+    "fix_time":0.25,
     "stim_time":0.2,
     "post_fix_time":0.4,
     "size_fixation_deg":0.4,
@@ -31,13 +31,13 @@
     "pixstim_fix_tex_size": 64,
     "pixstim_fix_amplitude_exponent": 1,
     "pixstim_fix_noise_n_textures": 8,
-    "pixstim_fix_opacity": 0.2,
+    "pixstim_fix_opacity": 0.6,
     "pixstim_fix_aperture_fraction": 0.2,
 
     "pixstim_bg_tex_size": 1024,
     "pixstim_bg_amplitude_exponent": 1,
     "pixstim_bg_noise_n_textures": 8,
-    "pixstim_bg_opacity": 0.1,
+    "pixstim_bg_opacity": 0.2,
     "pixstim_bg_aperture_fraction": 0.95,
 
     "aperture_stim_sd": 0.1225,
@@ -46,6 +46,6 @@
     "psychometric_curve_interval": 0.15,
     "psychometric_curve_nr_steps_oneside": 6,
 
-    "in_scanner": 0
+    "in_scanner": 1
 
 }

@@ -64,17 +64,17 @@ class AttSizeSession(EyelinkSession):
         
         if self.task == 0:  # NEW JR 
             if self.config['which_stimulus_type'] == 0: # blobs
-                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the blobs in the SMALL circle are more red or more green on every stimulus presentation.\n\n> Press left for red\n> Press right for green"""
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the blobs in the SMALL circle are more green or more red on every stimulus presentation.\n\n> Press left for green\n> Press right for red"""
         
             if self.config['which_stimulus_type'] == 1: # pixelstim
-                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the pixels in the SMALL circle are more red or more green on every stimulus presentation.\n\n> Press left for red\n> Press right for green"""
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the pixels in the SMALL circle are more green or more red on every stimulus presentation.\n\n> Press left for green\n> Press right for red"""
         
         elif self.task == 1:  # NEW JR 
             if self.config['which_stimulus_type'] == 0: # blobs
-                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the blobs in the ENTIRE circle are more red or more green on every stimulus presentation.\n\n> Press left for red\n> Press right for green"""
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the blobs in the ENTIRE circle are more green or more red on every stimulus presentation.\n\n> Press left for green\n> Press right for red"""
         
             if self.config['which_stimulus_type'] == 1: # pixelstim
-                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the pixels in the ENTIRE circle are more red or more green on every stimulus presentation.\n\n> Press left for red\n> Press right for green"""
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the pixels in the ENTIRE circle are more green or more red on every stimulus presentation.\n\n> Press left for green\n> Press right for red"""
 
         self.instruction = visual.TextStim(self.screen, 
             text = this_instruction_string, 
@@ -109,7 +109,9 @@ class AttSizeSession(EyelinkSession):
             units='pix', radius=self.config['size_fixation_deg']*self.pixels_per_degree/2, 
             fillColor=self.screen.background_color)
 
-
+        self.background_disk = visual.Circle(self.screen, 
+            radius=self.screen.size[1], 
+            units='pix', fillColor=self.screen.background_color)
 
         if self.config['which_stimulus_type'] == 0: # blob surround stimulus    
             self.bg_stim = AttSizeBGStim(session=self, 
@@ -156,16 +158,28 @@ class AttSizeSession(EyelinkSession):
         ##################################################################################
 
         blank_trials = np.array(self.config['prf_stim_sequence_angles']) == -1
-        trial_durations = np.ones(len(self.config['prf_stim_sequence_angles'])) * self.config['prf_stim_barpass_duration']
-        trial_durations[blank_trials] = self.config['prf_stim_blank_duration']
+        barpass_durations = np.ones(len(self.config['prf_stim_sequence_angles'])) * self.config['prf_stim_barpass_duration']
+        barpass_durations[blank_trials] = self.config['prf_stim_blank_duration']
+        bar_pass_edges = np.r_[0, np.cumsum(barpass_durations), -1].astype(int)
 
         self.prf_bar_pass_times = np.r_[0, np.cumsum(np.array([duration*self.config['TR'] 
-                                        for duration in trial_durations])), 1e7]
+                                        for duration in barpass_durations])), 1e7]
 
         self.stimulus_values = np.unique(np.r_[np.linspace(0,self.config['psychometric_curve_interval'], self.config['psychometric_curve_nr_steps_oneside']),
                                     -np.linspace(0,self.config['psychometric_curve_interval'], self.config['psychometric_curve_nr_steps_oneside'])])
 
-        self.nr_trials = self.config['prf_stim_barpass_duration'] * len(self.config['prf_stim_sequence_angles'])
+        self.nr_trials = int(np.sum(barpass_durations))
+        self.trial_list = np.zeros((self.nr_trials,5))
+        trial_indices = np.arange(self.nr_trials)
+        for i in range(len(barpass_durations)):
+            self.trial_list[bar_pass_edges[i]:bar_pass_edges[i+1],0] = trial_indices[bar_pass_edges[i]:bar_pass_edges[i+1]]
+            self.trial_list[bar_pass_edges[i]:bar_pass_edges[i+1],1] = i
+            self.trial_list[bar_pass_edges[i]:bar_pass_edges[i+1],2] = self.config['prf_stim_sequence_angles'][i]
+            self.trial_list[bar_pass_edges[i]:bar_pass_edges[i+1],3] = barpass_durations[i]
+            self.trial_list[bar_pass_edges[i]:bar_pass_edges[i+1],4] = bar_pass_edges[i]
+
+        print(self.trial_list)
+
         self.fix_trial_stimulus_values = np.random.choice(self.stimulus_values, self.nr_trials)
         self.bg_trial_stimulus_values = np.random.choice(self.stimulus_values, self.nr_trials)
 
@@ -252,8 +266,10 @@ class AttSizeSession(EyelinkSession):
             parameters = copy.copy(self.config)
             parameters['fix_trial_stimulus_value'] = self.fix_trial_stimulus_values[self.ti]
             parameters['bg_trial_stimulus_value'] = self.bg_trial_stimulus_values[self.ti]
-            parameters['pos_in_bar_trajectory'] = self.ti % self.config['prf_stim_barpass_duration']
-            parameters['bar_orientation'] = self.config['prf_stim_sequence_angles'][int(math.floor(self.ti / self.config['prf_stim_barpass_duration']))]
+
+            #
+            parameters['pos_in_bar_trajectory'] = self.ti - self.trial_list[self.ti,4] 
+            parameters['bar_orientation'] = self.trial_list[self.ti,2]
 
             trial = AttSizeTrial(ti=self.ti,
                            config=self.config,
