@@ -109,10 +109,6 @@ class AttSizeSession(EyelinkSession):
             units='pix', radius=self.config['size_fixation_deg']*self.pixels_per_degree/2, 
             fillColor=self.screen.background_color)
 
-        self.background_disk = visual.Circle(self.screen, 
-            radius=self.screen.size[1], 
-            units='pix', fillColor=self.screen.background_color)
-
         if self.config['which_stimulus_type'] == 0: # blob surround stimulus    
             self.bg_stim = AttSizeBGStim(session=self, 
                         nr_rings=self.config['blobstim_bg_nr_rings'], 
@@ -165,23 +161,24 @@ class AttSizeSession(EyelinkSession):
         self.prf_bar_pass_times = np.r_[0, np.cumsum(np.array([duration*self.config['TR'] 
                                         for duration in barpass_durations])), 1e7]
 
-        self.stimulus_values = np.unique(np.r_[np.linspace(0,self.config['psychometric_curve_interval'], self.config['psychometric_curve_nr_steps_oneside']),
-                                    -np.linspace(0,self.config['psychometric_curve_interval'], self.config['psychometric_curve_nr_steps_oneside'])])
-
         self.nr_trials = int(np.sum(barpass_durations))
         self.trial_list = np.zeros((self.nr_trials,5))
         trial_indices = np.arange(self.nr_trials)
         for i in range(len(barpass_durations)):
-            self.trial_list[bar_pass_edges[i]:bar_pass_edges[i+1],0] = trial_indices[bar_pass_edges[i]:bar_pass_edges[i+1]]
-            self.trial_list[bar_pass_edges[i]:bar_pass_edges[i+1],1] = i
-            self.trial_list[bar_pass_edges[i]:bar_pass_edges[i+1],2] = self.config['prf_stim_sequence_angles'][i]
-            self.trial_list[bar_pass_edges[i]:bar_pass_edges[i+1],3] = barpass_durations[i]
-            self.trial_list[bar_pass_edges[i]:bar_pass_edges[i+1],4] = bar_pass_edges[i]
+            sl = slice(bar_pass_edges[i], bar_pass_edges[i+1])
+            self.trial_list[sl,0] = trial_indices[sl]
+            self.trial_list[sl,1] = i
+            self.trial_list[sl,2] = self.config['prf_stim_sequence_angles'][i]
+            self.trial_list[sl,3] = barpass_durations[i]
+            self.trial_list[sl,4] = bar_pass_edges[i]
 
-        print(self.trial_list)
+        self.fix_stimulus_values = np.linspace(self.config['fix_psychometric_curve_interval']/self.config['fix_psychometric_curve_nr_steps_oneside'], self.config['fix_psychometric_curve_interval'], self.config['fix_psychometric_curve_nr_steps_oneside'])
+        self.fix_stimulus_values = np.concatenate((self.fix_stimulus_values, -self.fix_stimulus_values))
+        self.fix_trial_stimulus_values = np.random.choice(self.fix_stimulus_values, self.nr_trials)
 
-        self.fix_trial_stimulus_values = np.random.choice(self.stimulus_values, self.nr_trials)
-        self.bg_trial_stimulus_values = np.random.choice(self.stimulus_values, self.nr_trials)
+        self.bg_stimulus_values = np.linspace(self.config['bg_psychometric_curve_interval']/self.config['bg_psychometric_curve_nr_steps_oneside'], self.config['bg_psychometric_curve_interval'], self.config['bg_psychometric_curve_nr_steps_oneside'])
+        self.bg_stimulus_values = np.concatenate((self.bg_stimulus_values, -self.bg_stimulus_values))
+        self.bg_trial_stimulus_values = np.random.choice(self.bg_stimulus_values, self.nr_trials)
 
 
 ##################################################################################

@@ -38,14 +38,16 @@
     "pixstim_bg_amplitude_exponent": 1,
     "pixstim_bg_noise_n_textures": 8,
     "pixstim_bg_opacity": 0.2,
-    "pixstim_bg_aperture_fraction": 0.95,
+    "pixstim_bg_aperture_fraction": 0.99,
 
     "aperture_stim_sd": 0.1225,
     "answer_dictionary": {"b": 0, "y": 1},
 
-    "psychometric_curve_interval": 0.15,
-    "psychometric_curve_nr_steps_oneside": 6,
+    "fix_psychometric_curve_interval": 0.15,
+    "fix_psychometric_curve_nr_steps_oneside": 6,
+    "bg_psychometric_curve_interval": 0.15,
+    "bg_psychometric_curve_nr_steps_oneside": 6,
 
-    "in_scanner": 1
+    "in_scanner": 0
 
 }

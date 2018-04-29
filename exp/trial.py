@@ -18,7 +18,7 @@ class AttSizeTrial(Trial):
             if self.ID == 0:
                 phase_durations = [1800, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
             else:
-                phase_durations = [parameters['TR'] - (parameters['fix_time'] + parameters['stim_time'] + parameters['post_fix_time']), 
+                phase_durations = [parameters['TR'] - (parameters['fix_time'] + parameters['stim_time'] + parameters['post_fix_time'] + 0.05), 
                                     parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
         else:
             phase_durations = [1800, parameters['fix_time'], parameters['stim_time'], parameters['post_fix_time']]
@@ -41,14 +41,12 @@ class AttSizeTrial(Trial):
         self.session.set_fix_stimulus_value(color_balance=self.parameters['fix_trial_stimulus_value'])
 
     def draw(self, *args, **kwargs):
-        # self.session.background_disk.setFillColor(self.session.screen.background_color)
         # draw additional stimuli:
         if (self.phase == 0 ) * (self.ID == 0):
             self.session.instruction.draw()
         
         if self.phase == 2:  
             self.session.bg_stim.draw()             # surround condition + aperture
-        # self.session.draw_prf_stimulus() 
         if (self.parameters['bar_orientation'] != -1) and (self.phase != 0):
 
             bar_time = self.parameters['pos_in_bar_trajectory'] + (self.session.clock.getTime()-self.t_time)/self.parameters['TR']
