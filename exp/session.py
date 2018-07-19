@@ -64,17 +64,17 @@ class AttSizeSession(EyelinkSession):
         
         if self.task == 0:  # NEW JR 
             if self.config['which_stimulus_type'] == 0: # blobs
-                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the blobs in the SMALL circle are more green or more red on every stimulus presentation.\n\n> Press left for green\n> Press right for red"""
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the blobs in the SMALL circle are more green or more red on every stimulus presentation.\n\n> Press left (b) for green\n> Press right (y) for red"""
         
             if self.config['which_stimulus_type'] == 1: # pixelstim
-                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the pixels in the SMALL circle are more green or more red on every stimulus presentation.\n\n> Press left for green\n> Press right for red"""
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the pixels in the SMALL circle are more green or more red on every stimulus presentation.\n\n> Press left (b) for green\n> Press right (y) for red"""
         
         elif self.task == 1:  # NEW JR 
             if self.config['which_stimulus_type'] == 0: # blobs
-                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the blobs in the ENTIRE circle are more green or more red on every stimulus presentation.\n\n> Press left for green\n> Press right for red"""
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the blobs in the ENTIRE circle are more green or more red on every stimulus presentation.\n\n> Press left (b) for green\n> Press right (y) for red"""
         
             if self.config['which_stimulus_type'] == 1: # pixelstim
-                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the pixels in the ENTIRE circle are more green or more red on every stimulus presentation.\n\n> Press left for green\n> Press right for red"""
+                this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the pixels in the ENTIRE circle are more green or more red on every stimulus presentation.\n\n> Press left (b) for green\n> Press right (y) for red"""
 
         self.instruction = visual.TextStim(self.screen, 
             text = this_instruction_string, 
