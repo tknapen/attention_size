@@ -1,0 +1,17 @@
+####################################################################
+Dataset for sub01/
+####################################################################
+> Data1 removed 112 from original 420
+> Data2 removed 80 from original 420
+> Data3 removed 46 from original 210
+> Data4 removed 41 from original 210
+####################################################################
+> Data1 for fix_performance percent correct 63.64
+> Data1 for bg_performance percent correct 46.75
+> Data2 for fix_performance percent correct 52.06
+> Data2 for bg_performance percent correct 62.06
+> Data3 for fix_performance percent correct 53.05
+> Data3 for bg_performance percent correct 49.39
+> Data4 for fix_performance percent correct 50.3
+> Data4 for bg_performance percent correct 60.95
+####################################################################

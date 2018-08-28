@@ -1,0 +1,23 @@
+####################################################################
+Dataset for sub03/
+####################################################################
+> Data1 removed 44 from original 210
+> Data2 removed 21 from original 210
+> Data3 removed 34 from original 210
+> Data4 removed 45 from original 210
+> Data5 removed 42 from original 210
+> Data6 removed 28 from original 210
+####################################################################
+> Data1 for fix_performance percent correct 68.07 for contrast 0.8
+> Data1 for bg_performance percent correct 47.59 for contrast 0.4
+> Data2 for fix_performance percent correct 48.15 for contrast 0.8
+> Data2 for bg_performance percent correct 87.83 for contrast 0.4
+> Data3 for fix_performance percent correct 74.43 for contrast 0.6
+> Data3 for bg_performance percent correct 50.0 for contrast 0.2
+> Data4 for fix_performance percent correct 50.91 for contrast 0.6
+> Data4 for bg_performance percent correct 71.52 for contrast 0.2
+> Data5 for fix_performance percent correct 69.05 for contrast 0.4
+> Data5 for bg_performance percent correct 39.88 for contrast 0.1
+> Data6 for fix_performance percent correct 42.86 for contrast 0.4
+> Data6 for bg_performance percent correct 74.18 for contrast 0.1
+####################################################################
