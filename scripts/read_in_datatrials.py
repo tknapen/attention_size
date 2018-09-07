@@ -229,6 +229,7 @@ for x in data_big:
 		fig.savefig(newpath + str(figures) + '_figure' + '.png', bbox_inches='tight')
 		figures += 1
 		
+		
 
 ############################################################################
 # Save txt file with specs
