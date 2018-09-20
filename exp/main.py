@@ -20,7 +20,10 @@ def main():
     # task = 0                # 0 is fixation task, 1 is surround task
     appnope.nope()
 
-    ts = AttSizeSession(subject_initials=initials, index_number=index_number, task=task, tracker_on=False)
+
+    ts = AttSizeSession(subject_initials=initials, index_number=index_number, task=task, tracker_on=False)          # Normal Experiment
+    #ts = AttSizeSessionFF(subject_initials=initials, index_number=index_number, task=task, tracker_on=False)          # Flicker Fusion
+
     ts.run()
 
 if __name__ == '__main__':

@@ -2,7 +2,6 @@ from __future__ import division
 from psychopy import visual, clock
 from psychopy import filters
 import numpy as np
-import sympy as sym
 import os
 import json
 import glob
@@ -268,13 +267,13 @@ class AttSizeSession(EyelinkSession):
             parameters['pos_in_bar_trajectory'] = self.ti - self.trial_list[self.ti,4] 
             parameters['bar_orientation'] = self.trial_list[self.ti,2]
 
-            trial = AttSizeTrial(ti=self.ti,
+            self.trial = AttSizeTrial(ti=self.ti,
                            config=self.config,
                            screen=self.screen,
                            session=self,
                            parameters=parameters,
                            tracker=self.tracker)
-            trial.run()
+            self.trial.run()
             self.ti += 1
 
             if self.ti == len(self.fix_trial_stimulus_values):
@@ -283,3 +282,4 @@ class AttSizeSession(EyelinkSession):
                 break
 
         self.close()
+

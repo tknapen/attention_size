@@ -179,6 +179,8 @@ class AttSizeBGPixelFest(object):
                                     self.amplitude_exponent,
                                     self.n_textures)
 
+        self.frame_nr = 0
+
         self.create_mask()
         self.recalculate_stim() # and make sure there is something to draw even before we get going.
   
@@ -236,7 +238,45 @@ class AttSizeBGPixelFest(object):
                                         color=(1.0, 1.0, 1.0))     
 
     def draw(self):
-        self.noise_fest_stim.draw()     # NEW JR    (draw object + mask)
+        self.noise_fest_stim.draw()     
+
+class AttSizeBGPixelFestFF(AttSizeBGPixelFest):
+    def recalculate_stim(self, red_boost=1, green_boost=1, blue_boost=0, opacity=None):
+        which_textures = [0,0]
+        orientation = 0#np.random.choice([0,90,180,270], 1)
+
+        if opacity == None:
+            opacity = self.opacity
+
+        tex = np.zeros((int(self.tex_size), int(self.tex_size), 4))
+        tex[:,:,0] = red_boost + self.basic_textures[which_textures[0]]
+        tex[:,:,1] = green_boost + self.basic_textures[which_textures[1]]
+        # tex[:,:,2] = blue_boost + self.basic_textures[which_textures[2]]
+        tex[:,:,3] = opacity * np.ones(self.basic_textures[0].shape)
+
+        tex[tex>1] = 1
+       
+        self.noise_fest_stim = visual.GratingStim(self.session.screen,  # NEW JR
+                                        tex=tex,                            
+                                        mask=self.stimulus_aperture, 
+                                        size=[self.size, self.size], 
+                                        pos = np.array((0.0,0.0)),
+                                        ori=orientation,
+                                        color=(1.0, 1.0, 1.0))     
+
+    def draw(self):
+        if self.frame_nr % 2 == 0:
+            if self.frame_nr % 4 == 0:
+                self.session.bg_stim.recalculate_stim(
+                    red_boost=-self.trial.parameters['color_balance'], 
+                    green_boost=self.trial.parameters['color_balance'])
+            elif self.frame_nr % 4 == 2:
+                self.session.bg_stim.recalculate_stim(
+                    red_boost=self.trial.parameters['color_balance'], 
+                    green_boost=-self.trial.parameters['color_balance'])                
+        self.noise_fest_stim.draw()     
+
+        self.frame_nr += 1
 
 
 class PRFStim(object):  

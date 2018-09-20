@@ -47,13 +47,16 @@ class AttSizeTrial(Trial):
         
         if self.phase == 2:  
             self.session.bg_stim.draw()             # surround condition + aperture
-        if (self.parameters['bar_orientation'] != -1) and (self.phase != 0):
 
-            bar_time = self.parameters['pos_in_bar_trajectory'] + (self.session.clock.getTime()-self.t_time)/self.parameters['TR']
-            self.session.prf_stim.draw(time=bar_time, 
-                                period=self.parameters['prf_stim_barpass_duration'], 
-                                orientation=self.parameters['bar_orientation'],
-                                position_scaling=1+self.parameters["prf_checker_bar_width"])
+
+        ## pRF stimulus bar
+        # if (self.parameters['bar_orientation'] != -1) and (self.phase != 0):
+
+        #     bar_time = self.parameters['pos_in_bar_trajectory'] + (self.session.clock.getTime()-self.t_time)/self.parameters['TR']
+        #     self.session.prf_stim.draw(time=bar_time, 
+        #                         period=self.parameters['prf_stim_barpass_duration'], 
+        #                         orientation=self.parameters['bar_orientation'],
+        #                         position_scaling=1+self.parameters["prf_checker_bar_width"])
             
         self.session.fixation_disk.draw()       # disk behind fixation condition
         if self.phase == 2:
@@ -80,7 +83,33 @@ class AttSizeTrial(Trial):
                             self.session.run_time = self.session.clock.getTime()
                         self.t_time = self.session.clock.getTime()
                         self.phase_forward()
-                if ev in list(self.session.answer_dictionary.keys()): # staircase answers
+                if ev in list(self.session.answer_dictionary.keys()): 
                     if self.parameters['answer'] == -1: # only incorporate answer if not answered yet.
                         self.parameters['answer'] = self.session.answer_dictionary[ev]
             super(AttSizeTrial, self).key_event(ev)
+
+
+class AttSizeTrialFF(AttSizeTrial):
+    def event(self):
+        for ev in event.getKeys():
+            if len(ev) > 0:
+                if ev in ['esc', 'escape', 'q']:
+                    self.events.append(
+                        [-99, self.session.clock.getTime() - self.start_time])
+                    self.stop()
+                    self.session.stopped = True
+                    print 'run canceled by user'
+                if ev in ['space', ' ', 't']:
+                    if self.phase == 0:
+                        if self.ID == 0:
+                            self.session.run_time = self.session.clock.getTime()
+                        self.t_time = self.session.clock.getTime()
+                        self.phase_forward()
+                if ev in list(self.session.answer_dictionary.keys()): 
+                    if self.session.answer_dictionary[ev] == 0:
+                        self.parameters['color_balance'] -= 0.025
+                    elif self.session.answer_dictionary[ev] == 1:
+                        self.parameters['color_balance'] += 0.025
+
+            super(AttSizeTrial, self).key_event(ev)
+
