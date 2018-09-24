@@ -15,14 +15,16 @@ from exptools.core.session import EyelinkSession
 from exptools.core.staircase import ThreeUpOneDownStaircase, OneUpOneDownStaircase
 
 from trial import AttSizeTrial
-from stim import AttSizeBGStim, AttSizeBGPixelFest, PRFStim
+from stim import AttSizeBGStim, AttSizeBGPixelFest, PRFStim, AttSizeBGPixelFestFF       
 
 
 class AttSizeSession(EyelinkSession):
 
     def __init__(self, subject_initials, index_number, task, tracker_on, *args, **kwargs):
 
-        super(AttSizeSession, self).__init__(subject_initials, index_number, tracker_on, *args, **kwargs)
+        print('> Session - Initialize AttSizeSession Class')
+
+        super(AttSizeSession, self).__init__(subject_initials, index_number, tracker_on, *args, **kwargs)        
 
         self.create_screen(full_screen=True, engine='pygaze')
         self.task = task
@@ -42,14 +44,21 @@ class AttSizeSession(EyelinkSession):
         self.run_time = -1
         self.stopped = False
 
+
+    ##################################################################################
+    # Creates stimuli conditions, masks and instructions
+    ##################################################################################
+
     def create_stimuli(self):
+
+        print('> Session - AttSizeSession Class - Create Stimuli Function')
 
         self.prf_stim = PRFStim(session=self, 
                         cycles_in_bar=self.config['prf_checker_cycles_in_bar'], 
                         bar_width=self.config['prf_checker_bar_width'],
                         tex_nr_pix=self.config['prf_checker_tex_nr_pix'],
                         flicker_frequency=self.config['prf_checker_flicker_frequency'],
-                        max_eccentricity=self.config['blobstim_bg_ecc_max']*self.pixels_per_degree)     # NEW JR
+                        max_eccentricity=self.config['blobstim_bg_ecc_max']*self.pixels_per_degree)     
 
         size_fixation_pix = self.deg2pix(self.config['size_fixation_deg'])
         self.fixation = visual.GratingStim(self.screen,
@@ -61,7 +70,7 @@ class AttSizeSession(EyelinkSession):
                                            sf=0,
                                            pos=(0,0))
         
-        if self.task == 0:  # NEW JR 
+        if self.task == 0:  
             if self.config['which_stimulus_type'] == 0: # blobs
                 this_instruction_string = """Fixate in the center of the screen. Your task is to judge whether the blobs in the SMALL circle are more green or more red on every stimulus presentation.\n\n> Press left (b) for green\n> Press right (y) for red"""
         
@@ -100,8 +109,8 @@ class AttSizeSession(EyelinkSession):
                                         pos = np.array((0.0,0.0)), 
                                         color = self.screen.background_color)
 
-        # Small fixation condition ring
-        self.fixation_circle = visual.Circle(self.screen, 
+       
+        self.fixation_circle = visual.Circle(self.screen,        # Small fixation condition ring
             radius=self.config['size_fixation_deg']*self.pixels_per_degree/2, 
             units='pix', lineColor='black')
         self.fixation_disk = visual.Circle(self.screen, 
@@ -145,13 +154,15 @@ class AttSizeSession(EyelinkSession):
                         aperture_fraction=self.config['pixstim_fix_aperture_fraction'])     
 
 
+    ##################################################################################
+    # Creates trials by setting up values for task, and prf stimulus sequence 
+    ##################################################################################
+
     def create_trials(self):
-        """creates trials by setting up staircases for background task, and prf stimulus sequence"""
 
-        ##################################################################################
-        ## timings etc for the bar passes
-        ##################################################################################
+        print('> Session - AttSizeSession Class - Create Trials Function')
 
+        # Timings etc for the bar passes
         blank_trials = np.array(self.config['prf_stim_sequence_angles']) == -1
         barpass_durations = np.ones(len(self.config['prf_stim_sequence_angles'])) * self.config['prf_stim_barpass_duration']
         barpass_durations[blank_trials] = self.config['prf_stim_blank_duration']
@@ -180,64 +191,54 @@ class AttSizeSession(EyelinkSession):
         self.bg_trial_stimulus_values = np.random.choice(self.bg_stimulus_values, self.nr_trials)
 
 
-##################################################################################
-## Fixation conditions - value staircases
-##################################################################################
+    ##################################################################################    
+    # Fixation conditions 
+    ##################################################################################
 
     def set_fix_stimulus_value(self, color_balance=0):
-        """set_fix_stimulus_values sets the value of the fixation stimulus based on the fix_staircase.
-        It has to take into account the stimulus type and type of staircase to construct the values,
-        and will only set the self.which_correct_answer if the fixation task is being performed in this run.
-        """
 
-        ##################################################################################
-        ## Blobs OneUpOneDown Staircase - fixation
-        ##################################################################################
+        print('> Session - AttSizeSession Class - Set fixation values Function')
 
+        # Blobs fixation
         if self.config['which_stimulus_type'] == 0: # blobs
             self.fix_stim.repopulate_condition_ring_colors(condition_nr=0, 
                 color_balance=color_balance)
 
-        ##################################################################################
-        ## Noisestim OneUpOneDown Staircase - fixation
-        ##################################################################################
-
+        # Noisestim fixation
         elif self.config['which_stimulus_type'] == 1: # 1/f noise
-            self.fix_stim.recalculate_stim(  red_boost=-color_balance,     # added JR
-                                                green_boost=color_balance,     # added JR
-                                                blue_boost=0)                   # added JR
+            self.fix_stim.recalculate_stim(  red_boost=-color_balance,     
+                                                green_boost=color_balance,     
+                                                blue_boost=0)                   
 
-
-##################################################################################
-## Surround conditions - value staircases
-##################################################################################
+    ##################################################################################        
+    # Surround conditions 
+    ##################################################################################
 
     def set_background_stimulus_value(self, color_balance):
-        """set_background_stimulus_values sets the value of the fixation stimulus based on the fix_staircase.
-        It has to take into account the stimulus type and type of staircase to construct the values,
-        and will only set the self.which_correct_answer if the background task is being performed in this run.
-        """
 
-        ##################################################################################
-        ## Blobs OneUpOneDown Staircase - surround
-        ##################################################################################
+        print('> Session - AttSizeSession Class - Set background values Function')
 
+        # Blobs surround
         if self.config['which_stimulus_type'] == 0: # blobs
 
             self.bg_stim.repopulate_condition_ring_colors(condition_nr=0, 
                 color_balance=color_balance)
 
-        ##################################################################################
-        ## Noisestim OneUpOneDown Staircase - surround
-        ##################################################################################
-
+        # Noisestim surround
         elif self.config['which_stimulus_type'] == 1: # 1/f noise
             self.bg_stim.recalculate_stim(  red_boost=-color_balance,
                                                 green_boost=color_balance,  # color change
                                                 blue_boost=0)    
 
 
+    ##################################################################################
+    # Draw prf stimulus and timing
+    ##################################################################################
+
     def draw_prf_stimulus(self):
+
+        print('> Session - AttSizeSession Class - Draw PRF stim Function')
+
         # only draw anything after the experiment has started
         if self.run_time > 0:
             present_time = self.clock.getTime() - self.run_time
@@ -250,9 +251,13 @@ class AttSizeSession(EyelinkSession):
                                 position_scaling=1+self.config["prf_checker_bar_width"])
 
     def close(self):
+        print('> Session - AttSizeSession Class - Close session')
+
         super(AttSizeSession, self).close()
 
     def run(self):
+        print('> Session - AttSizeSession Class - Run session')
+
         """run the session"""
         # cycle through trials
 
@@ -283,3 +288,67 @@ class AttSizeSession(EyelinkSession):
 
         self.close()
 
+
+
+
+
+
+################################################################################
+## Copy main class of AttSizeSession and add some edits
+################################################################################
+
+class AttSizeSessionFF(AttSizeSession, EyelinkSession):
+
+    print('> Session Flicker - Initialize AttSizeSessionFF')
+
+    # def __init__(self, subject_initials, index_number, task, tracker_on, *args, **kwargs):
+    #     super(AttSizeSession).__init__(self.create_stimuli)
+
+
+
+
+    def set_background_stimulus_value(self, color_balance):
+
+        print('> Session Flicker - set background value FF')
+
+        self.bg_stim.recalculate_stimff(red_boost=-color_balance, green_boost=color_balance, blue_boost=0)    
+
+
+       
+    def create_stimuli(self):
+        
+        self.bg_stim = AttSizeBGPixelFestFF(session=self,
+                        tex_size=self.config['pixstim_bg_tex_size'],
+                        amplitude_exponent=self.config['pixstim_bg_amplitude_exponent'], 
+                        n_textures=self.config['pixstim_bg_noise_n_textures'],
+                        opacity=self.config['pixstim_bg_opacity'],
+                        size=self.screen.size[1],
+                        aperture_fraction=self.config['pixstim_bg_aperture_fraction'])                
+        
+        self.fix_stim = AttSizeBGPixelFestFF(session=self, # 1/f noise fixation stimulus
+                        tex_size=self.config['pixstim_fix_tex_size'],
+                        amplitude_exponent=self.config['pixstim_fix_amplitude_exponent'], 
+                        n_textures=self.config['pixstim_fix_noise_n_textures'],
+                        opacity=self.config['pixstim_fix_opacity'],
+                        size=(1.0/self.config['pixstim_fix_aperture_fraction']) * self.config['size_fixation_deg']*self.pixels_per_degree,
+                        aperture_fraction=self.config['pixstim_fix_aperture_fraction'])     
+
+
+
+
+        # elif self.config['which_stimulus_type'] == 1: # 1/f noise
+        #     self.bg_stim.recalculate_stim(  red_boost=-color_balance,
+        #                                         green_boost=color_balance,  # color change
+        #                                         blue_boost=0)    
+
+
+    #     if self.config['which_stimulus_type'] == 1: 
+    #         self.bg_stim.recalculate_stim_ff(  red_boost=-color_balance, green_boost=color_balance,  # color change
+
+
+    # def __init__(self, subject_initials, index_number, task, tracker_on, *args, **kwargs):
+    #     super(AttSizeSession).__init__(subject_initials, index_number, task, tracker_on, *args, **kwargs)
+
+    #     self.flicker = flicker
+
+################################################################################

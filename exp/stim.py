@@ -14,6 +14,10 @@ from scipy import ndimage
 # from session import AttSizeSession
 
 
+##################################################################################
+# Some standard functions
+##################################################################################
+
 def ecc_deg_2_mm(eps, lmb=1.2, eps0=1.0):
     """Returns X, the 'eccentricity' in cm"""
     return lmb * np.log(1 + (eps/eps0))
@@ -47,10 +51,8 @@ class MyList(list):
     def __sub__(self, other):
         return self.__class__(*[item for item in self if item not in other])
 
-########################################################################################################################
-# Cortical Magnification factor & Eccentricities
-########################################################################################################################
 
+# Cortical Magnification factor & Eccentricities
 def cm(ecc, mm_0, tau):
     return mm_0 * np.exp(-ecc*tau)
 
@@ -65,7 +67,10 @@ def mm_cortex_from_fovea(ecc_min, ecc_max, nr=1e4, mm_0=12, tau=0.5, fs=14):
     return mm_cortex_from_fovea, mm_range, cm_trace
 
 
+
+
 class AttSizeBGStim(object):
+
     def __init__(self, 
                 session, 
                 nr_rings=3, 
@@ -127,8 +132,14 @@ class AttSizeBGStim(object):
                                             lineColor=[-1, -1, -1], 
                                             edges=256) for rp in ring_pos]
 
+    ##################################################################################
+    # Blob condition recalculation
+    ##################################################################################
 
     def repopulate_condition_ring_colors(self, condition_nr, color_balance):
+
+        print('> Stim.py - AttSizeBGStim Blobs Class - Repopulate ring colors')
+
         this_ring_bool = self.element_array_np[:,-1] == condition_nr
         nr_elements_in_condition = this_ring_bool.sum()
 
@@ -142,21 +153,30 @@ class AttSizeBGStim(object):
         self.insert_parameters_into_stim()
 
     def insert_parameters_into_stim(self):
+
+        print('> Stim.py - AttSizeBGStim Blobs Class - Insert Params')
+
         self.element_array_stim.setColors(self.element_array_np[:,[5,6,7]], log=False)
         self.element_array_stim.setXYs(self.element_array_np[:,[0,1]], log=False)
 
     def recalculate_elements(self):
+        print('> Stim.py - AttSizeBGStim Blobs Class - Recalculate Elements')
         pass
 
     def draw(self):
+        print('> Stim.py - AttSizeBGStim Blobs Class - Draw element array')
         self.element_array_stim.draw()
 
     def draw_circles(self):
+        print('> Stim.py - AttSizeBGStim Blobs Class - Draw circles')
         for ring in self.rings:
             ring.draw()
 
 
 class AttSizeBGPixelFest(object):
+
+    print('> Stim.py - AttSizeBGPixelFest Class')
+
     def __init__(self, 
                 session,
                 tex_size,
@@ -172,8 +192,8 @@ class AttSizeBGPixelFest(object):
         self.amplitude_exponent = amplitude_exponent
         self.n_textures = n_textures
         self.opacity = opacity
-        self.size = size                            # NEW JR
-        self.aperture_fraction = aperture_fraction                            # NEW JR
+        self.size = size                            
+        self.aperture_fraction = aperture_fraction                            
 
         self.basic_textures = self.create_basic_textures(self.tex_size,
                                     self.amplitude_exponent,
@@ -185,6 +205,9 @@ class AttSizeBGPixelFest(object):
         self.recalculate_stim() # and make sure there is something to draw even before we get going.
   
     def create_mask(self):
+
+        print('> Stim.py - AttSizeBGPixelFest Class - Create mask')
+
         self.stimulus_aperture = filters.makeMask(matrixSize=self.tex_size,          # NEW JR
                         shape='raisedCosine',                       
                         radius=self.aperture_fraction,                       
@@ -193,6 +216,9 @@ class AttSizeBGPixelFest(object):
                         fringeWidth= 0.1)  
 
     def create_basic_textures(self, tex_size, amplitude_exponent, n_textures):
+
+        print('> Stim.py - AttSizeBGPixelFest Class - Create basic textures')
+
         t2 = int(tex_size/2)
         X,Y = np.meshgrid(np.linspace(-t2,t2,tex_size,endpoint=True),
                         np.linspace(-t2,t2,tex_size,endpoint=True))
@@ -215,6 +241,9 @@ class AttSizeBGPixelFest(object):
         return textures
 
     def recalculate_stim(self, red_boost=1, green_boost=1, blue_boost=0, opacity=None):
+        
+        print('> Stim.py -  AttSizeBGPixelFest Class - Recalculate Stim')
+
         which_textures = np.random.choice(self.n_textures, 3, replace=False)
         orientation = np.random.choice([0,90,180,270], 1)
 
@@ -229,7 +258,7 @@ class AttSizeBGPixelFest(object):
 
         tex[tex>1] = 1
        
-        self.noise_fest_stim = visual.GratingStim(self.session.screen,  # NEW JR
+        self.noise_fest_stim = visual.GratingStim(self.session.screen,  
                                         tex=tex,                            
                                         mask=self.stimulus_aperture, 
                                         size=[self.size, self.size], 
@@ -238,10 +267,20 @@ class AttSizeBGPixelFest(object):
                                         color=(1.0, 1.0, 1.0))     
 
     def draw(self):
+        #print('> Stim.py -  AttSizeBGPixelFest Class - Draw stim')
         self.noise_fest_stim.draw()     
 
+
+
+
+
+################################################################################
+# Attentionsizepixel Flicker Fuse -  Newly added tryout  
+##################################################################################
+
 class AttSizeBGPixelFestFF(AttSizeBGPixelFest):
-    def recalculate_stim(self, red_boost=1, green_boost=1, blue_boost=0, opacity=None):
+
+    def recalculate_stimff(self, red_boost=1, green_boost=1, blue_boost=0, opacity=None):          # JR renamed to +ff
         which_textures = [0,0]
         orientation = 0#np.random.choice([0,90,180,270], 1)
 
@@ -267,17 +306,23 @@ class AttSizeBGPixelFestFF(AttSizeBGPixelFest):
     def draw(self):
         if self.frame_nr % 2 == 0:
             if self.frame_nr % 4 == 0:
-                self.session.bg_stim.recalculate_stim(
-                    red_boost=-self.trial.parameters['color_balance'], 
-                    green_boost=self.trial.parameters['color_balance'])
-            elif self.frame_nr % 4 == 2:
-                self.session.bg_stim.recalculate_stim(
+                self.session.bg_stim.recalculate_stim(       
+                    red_boost=-self.trial.parameters['color_balance'],  
+                    green_boost=self.trial.parametersff['color_balance'])
+            elif self.frame_nr % 4 == 2:    
+                self.session.bg_stim.recalculate_stim(          
                     red_boost=self.trial.parameters['color_balance'], 
                     green_boost=-self.trial.parameters['color_balance'])                
         self.noise_fest_stim.draw()     
 
         self.frame_nr += 1
 
+
+
+
+################################################################################
+# PRF stimulus class
+##################################################################################
 
 class PRFStim(object):  
     def __init__(self, session, 

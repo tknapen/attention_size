@@ -1,35 +1,11 @@
 ####################################################################
 Dataset for sub04/
 ####################################################################
-> Data1 removed 49 from original 210
-> Data2 removed 58 from original 210
-> Data3 removed 45 from original 210
-> Data4 removed 52 from original 210
-> Data5 removed 50 from original 210
-> Data6 removed 48 from original 210
-> Data7 removed 45 from original 210
-> Data8 removed 44 from original 210
-> Data9 removed 45 from original 210
-> Data10 removed 41 from original 210
+> Data1 removed 243 from original 1050
+> Data2 removed 234 from original 1050
 ####################################################################
-> Data1 for fix_performance percent correct 55.9 for contrast 0.7
-> Data1 for bg_performance percent correct 68.94 for contrast 0.3
-> Data2 for fix_performance percent correct 63.16 for contrast 0.7
-> Data2 for bg_performance percent correct 53.29 for contrast 0.3
-> Data3 for fix_performance percent correct 53.94 for contrast 0.7
-> Data3 for bg_performance percent correct 64.85 for contrast 0.3
-> Data4 for fix_performance percent correct 70.89 for contrast 0.7
-> Data4 for bg_performance percent correct 50.0 for contrast 0.3
-> Data5 for fix_performance percent correct 53.75 for contrast 0.7
-> Data5 for bg_performance percent correct 61.88 for contrast 0.3
-> Data6 for fix_performance percent correct 70.99 for contrast 0.7
-> Data6 for bg_performance percent correct 41.98 for contrast 0.3
-> Data7 for fix_performance percent correct 52.12 for contrast 0.7
-> Data7 for bg_performance percent correct 76.97 for contrast 0.3
-> Data8 for fix_performance percent correct 75.9 for contrast 0.7
-> Data8 for bg_performance percent correct 47.59 for contrast 0.3
-> Data9 for fix_performance percent correct 52.73 for contrast 0.7
-> Data9 for bg_performance percent correct 61.82 for contrast 0.3
-> Data10 for fix_performance percent correct 70.41 for contrast 0.7
-> Data10 for bg_performance percent correct 49.11 for contrast 0.3
+> Data1 for fix_performance percent correct 70.38 for contrast 0.7
+> Data1 for bg_performance percent correct 48.33 for contrast 0.3
+> Data2 for fix_performance percent correct 53.68 for contrast 0.7
+> Data2 for bg_performance percent correct 66.91 for contrast 0.3
 ####################################################################

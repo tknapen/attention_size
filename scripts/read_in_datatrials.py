@@ -35,24 +35,31 @@ def sigmoid(x, x0, k):
 ########################################################################################################################################
 
 #### For which subject? ####
-subj = 'sub03/'
+subj = 'sub05/'
 
 newpath = '/Users/jong/Dropbox/Spinoza_Centre_for_Neuroimaging/Project_Selective_Attention/attention_size/exp/data/' + subj
 filenames = glob.glob(newpath + '*.tsv')
 
-### Which run corresponds to which run #### 
-c1_contr1 = filenames[0]#,filenames[2]
-c2_contr1 = filenames[1]#, filenames[3]
+### Which run corresponds to which run #### 			<----
+c1_contr1 = filenames[0]#, filenames[3], filenames[5], filenames[7], filenames[9]
+c2_contr1 = filenames[1]#, filenames[2], filenames[4], filenames[6], filenames[8]
 
 c1_contr2 = filenames[2]
 c2_contr2 = filenames[3]
 
-c1_contr3 = filenames[4]
-c2_contr3 = filenames[5]
+# c1_contr3 = filenames[4]
+# c2_contr3 = filenames[5]
+
+# c1_contr4 = filenames[6]
+# c2_contr4 = filenames[7]
+
+# c1_contr5 = filenames[8]
+# c2_contr5 = filenames[9]
+
+### Update these according to stuff above #### 									<----
+datasets = c1_contr1, c2_contr1		, c1_contr2, c2_contr2#, c1_contr3, c2_contr3, c1_contr4, c2_contr4, c1_contr5, c2_contr5
 
 
-### Update these according to stuff above #### 
-datasets = c1_contr1, c2_contr1, c1_contr2, c2_contr2, c1_contr3, c2_contr3
 
 
 print('\n###################################################################')
@@ -170,16 +177,16 @@ for x in data_big:
 		# Fitting non-linear least squares fit
 		try: 
 			# Trust Region Reflective algorithm, particularly suitable for large sparse problems with bounds.
-			popt, pcov = curve_fit(sigmoid, x_values, y_values, method='trf') 
+			popt, pcov = curve_fit(f=sigmoid, xdata=x_values, ydata=y_values, p0=[0,-10], method='lm') 
 
 		except:
 			# Standard scipy fit procedure
-			popt, pcov = curve_fit(sigmoid, x_values, y_values)		
+			popt, pcov = curve_fit(f=sigmoid, xdata=x_values, ydata=y_values, p0=[0,-10])		
 
 
 		x_continuous = np.linspace(x_values.min(), x_values.max(), 100)
 		y_continuous = sigmoid(x_continuous, *popt)
-
+		print(popt)		
 		############################################################################
 		# Find the x value for y value 0.5
 		############################################################################
@@ -215,8 +222,10 @@ for x in data_big:
 		pl.plot(x_continuous, y_continuous) # label='fit')
 		pl.axhline(y=0.5, linestyle='dashed')
 		pl.gca().set_ylim([-0.05,1.05])
+		pl.gca().set_xlim([-0.20,0.20])		
 		pl.gca().set_xlabel('Stim color (all red, 0, all green) | Crosses at x = %s' %(x_value))
 		pl.gca().set_ylabel('% awnsered red')
+
 		pl.gca().legend(loc='best')
 		pl.gca().set_title('Performance for %s \n From %s | Contrast intensity: %s' %(s, subj, contrast))
 		pl.show()
@@ -249,5 +258,6 @@ outF.write('####################################################################
 outF.close()
 
 
+############################################################################
 
 

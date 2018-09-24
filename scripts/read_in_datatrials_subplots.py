@@ -35,7 +35,7 @@ def sigmoid(x, x0, k):
 ########################################################################################################################################
 
 #### For which subject? ####		<----
-subj = 'sub04/'
+subj = 'sub02/'
 
 newpath = '/Users/jong/Dropbox/Spinoza_Centre_for_Neuroimaging/Project_Selective_Attention/attention_size/exp/data/' + subj
 filenames = glob.glob(newpath + '*.tsv')
@@ -47,12 +47,17 @@ c2_contr1 = filenames[1]
 c1_contr2 = filenames[2]
 c2_contr2 = filenames[3]
 
-#c1_contr3 = filenames[4]
-#c2_contr3 = filenames[5]
+# c1_contr3 = filenames[4]
+# c2_contr3 = filenames[5]
 
+# c1_contr4 = filenames[6]
+# c2_contr4 = filenames[7]
+
+# c1_contr5 = filenames[8]
+# c2_contr5 = filenames[9]
 
 ### Update these according to stuff above #### 									<----
-datasets = c1_contr1, c2_contr1, c1_contr2, c2_contr2#, c1_contr3, c2_contr3
+datasets = c1_contr1, c2_contr1, c1_contr2, c2_contr2#, c1_contr3, c2_contr3, c1_contr4, c2_contr4, c1_contr5, c2_contr5
 
 
 print('\n###################################################################')
@@ -113,32 +118,57 @@ print('###################################################################')
 
 counter = 1
 performance_info = []
+performances = []
+contrasts = []
 
 for d in data_big:
 	data_name = 'Data' + str(counter)	# to rename the sets again
 
+	############################################################################################################################################
+	# Fixation performance
+	############################################################################################################################################
+
 	fix = 'fix_performance'
 	d[fix] = (d['fix_trial_stimulus_value'] < 0.0) & (d['answer'] == 1.0) | (d['fix_trial_stimulus_value'] > 0.0) & (d['answer'] == 0.0)
 	d[fix] = d[fix] *1  # *1 makes true values 1, and false 0
-	pc_corr = round(((np.sum(d[fix]) / len(d))*100),2)
 
+	# Contrast 
 	contrast = d.iloc[0]['pixstim_fix_opacity']
-	print('> %s: %s = %s percent for contrast %s' %(data_name, fix, pc_corr, contrast))
+	contrasts.append(contrast)
+
+	# Calculate performance + save performance in list
+	pc_corr = round(((np.sum(d[fix]) / len(d))*100),2)
+	performances.append(pc_corr)
 
 	perf_info = str(data_name) + ' for ' + str(fix) + ' percent correct ' + str(pc_corr) + ' for contrast ' + str(contrast)	# save performance info in string
 	performance_info.append(perf_info)
 
 
+	# Print info
+	print('> %s: %s = %s percent for contrast %s' %(data_name, fix, pc_corr, contrast))
+
+
+	############################################################################################################################################
+	# Background performance
+	############################################################################################################################################
+
 	bg = 'bg_performance'
 	d[bg] = (d['bg_trial_stimulus_value'] < 0.0) & (d['answer'] == 1.0) | (d['bg_trial_stimulus_value'] > 0.0) & (d['answer'] == 0.0)
 	d[bg] = d[bg] *1  # *1 makes true values 1, and false 0
-	pc_corr = round(((np.sum(d[bg]) / len(d))*100),2)
 	
+	# Contrast + save contrast in list
 	contrast = d.iloc[0]['pixstim_bg_opacity']
-	print('> %s: %s = %s percent for contrast %s' %(data_name, bg, pc_corr, contrast))
+	contrasts.append(contrast)
+
+	# Calculate performance + save performance in list
+	pc_corr = round(((np.sum(d[bg]) / len(d))*100),2)
+	performances.append(pc_corr)
 
 	perf_info = str(data_name) + ' for ' + str(bg) + ' percent correct ' + str(pc_corr) + ' for contrast ' + str(contrast)	# save performance info in string
 	performance_info.append(perf_info)
+
+	# Print info
+	print('> %s: %s = %s percent for contrast %s' %(data_name, bg, pc_corr, contrast))
 
 
 	vars()[data_name] = d
@@ -260,9 +290,9 @@ outF.close()
 # Make subimages with saved data
 ########################################################################################################################################
 
-# subject_all_xdata
-# subject_all_ydata
-#all_data = subject_all_xdata, subject_all_ydata
+subject_all_xdata
+subject_all_ydata
+all_data = subject_all_xdata, subject_all_ydata
 
 run1 = subject_all_xdata[0], subject_all_ydata[0]
 run2 = subject_all_xdata[1], subject_all_ydata[1]
@@ -272,26 +302,64 @@ run5 = subject_all_xdata[4], subject_all_ydata[4]
 run6 = subject_all_xdata[5], subject_all_ydata[5]
 run7 = subject_all_xdata[6], subject_all_ydata[6]
 run8 = subject_all_xdata[7], subject_all_ydata[7]
+run9 = subject_all_xdata[8], subject_all_ydata[8]
+run10 = subject_all_xdata[9], subject_all_ydata[9]
+run11 = subject_all_xdata[10], subject_all_ydata[10]
+run12 = subject_all_xdata[11], subject_all_ydata[11]
+run13 = subject_all_xdata[12], subject_all_ydata[12]
+run14 = subject_all_xdata[13], subject_all_ydata[13]
+run15 = subject_all_xdata[14], subject_all_ydata[14]
+run16 = subject_all_xdata[15], subject_all_ydata[15]
+run17 = subject_all_xdata[16], subject_all_ydata[16]
+run18 = subject_all_xdata[17], subject_all_ydata[17]
+run19 = subject_all_xdata[18], subject_all_ydata[18]
+run20 = subject_all_xdata[19], subject_all_ydata[19]
+
+#plt.plot(run1[0], run1[1], label='Run1')
+plt.plot(run2[0], run2[1], label='Run2')
+#plt.plot(run3[0], run3[1], label='Run3')
+plt.plot(run4[0], run4[1], label='Run4')
+#plt.plot(run5[0], run5[1], label='Run5')
+plt.plot(run6[0], run6[1], label='Run6')
+#plt.plot(run7[0], run7[1], label='Run7')
+plt.plot(run8[0], run8[1], label='Run8')
+#plt.plot(run9[0], run9[1], label='Run9')
+plt.plot(run10[0], run10[1], label='Run10')
 
 
-plt.plot(run1[0], run1[1])
-plt.plot(run2[0], run2[1])
-plt.plot(run3[0], run3[1])
-plt.plot(run4[0], run4[1])
-plt.plot(run5[0], run5[1])
-plt.plot(run6[0], run6[1])
-plt.plot(run7[0], run7[1])
-plt.plot(run8[0], run8[1])
+#plt.plot(run11[0], run11[1], label='Run11')
+plt.plot(run12[0], run12[1], label='Run12')
+#plt.plot(run5[0], run5[1], label='Run5')
+plt.plot(run6[0], run6[1], label='Run6')
+#plt.plot(run7[0], run7[1], label='Run7')
+plt.plot(run8[0], run8[1], label='Run8')
+#plt.plot(run9[0], run9[1], label='Run9')
+plt.plot(run10[0], run10[1], label='Run10')
+#plt.plot(run9[0], run9[1], label='Run9')
+
+plt.gca().set_ylabel('% awnsered red')
+plt.gca().set_xlabel('Stim color (all red, 0, all green')
+plt.gca().set_title('Performance of all trials for %s' %(subj))
+plt.gca().legend(loc='best')
 plt.show()
 
 
-for allruns in subject_all_xdata and subject_all_ydata:
+
+Figure plot all data
+counter = 1
+for allruns in range(0, len(subject_all_xdata)):
 	xdata = subject_all_xdata[allruns]
 	ydata = subject_all_ydata[allruns]
-	plt.plot(xdata, ydata)
-	plt.show()
 
+	plt.plot(xdata, ydata, label='Data ' + str(counter))
+	plt.gca().set_ylabel('% awnsered red')
+	plt.gca().set_xlabel('Stim color (all red, 0, all green')
+	plt.gca().set_title('Performance of all trials for %s' %(subj))
+	plt.gca().legend(loc='best')
+	
+	counter += 1
 
+plt.show()
 
 
 

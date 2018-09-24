@@ -1,7 +1,22 @@
 import sys
-from session import AttSizeSession
+import os
+import json
+from session import AttSizeSession, AttSizeSessionFF
 import appnope
 
+
+##################################################################################
+# Get and open json file
+##################################################################################
+
+config_file = os.path.join(os.path.abspath(os.getcwd()), 'default_settings.json')
+with open(config_file) as config_file:
+            config = json.load(config_file)
+
+
+##################################################################################
+# Run main
+##################################################################################
 
 def main():
     initials = sys.argv[1]
@@ -21,8 +36,16 @@ def main():
     appnope.nope()
 
 
-    ts = AttSizeSession(subject_initials=initials, index_number=index_number, task=task, tracker_on=False)          # Normal Experiment
-    #ts = AttSizeSessionFF(subject_initials=initials, index_number=index_number, task=task, tracker_on=False)          # Flicker Fusion
+    # Normal Experiment
+    if config['flickerfuse'] == 0: 
+        ts = AttSizeSession(subject_initials=initials, index_number=index_number, task=task, tracker_on=False)      
+        print('##### Main - Runs normal Experiment #####')   
+    
+    # Flicker Fusion threshold
+    else:
+        ts = AttSizeSessionFF(subject_initials=initials, index_number=index_number, task=task, tracker_on=False)          
+        print('##### Main - Flicker Fuse Test #####')   
+
 
     ts.run()
 

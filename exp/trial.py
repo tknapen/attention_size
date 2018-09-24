@@ -37,8 +37,21 @@ class AttSizeTrial(Trial):
         if self.session.config['in_scanner'] == 0:
             self.t_time = self.session.clock.getTime()
 
-        self.session.set_background_stimulus_value(color_balance=self.parameters['bg_trial_stimulus_value'])
-        self.session.set_fix_stimulus_value(color_balance=self.parameters['fix_trial_stimulus_value'])
+        # original code
+        #self.session.set_background_stimulus_value(color_balance=self.parameters['bg_trial_stimulus_value'])
+        #self.session.set_fix_stimulus_value(color_balance=self.parameters['fix_trial_stimulus_value'])
+
+
+        if self.session.config['flickerfuse'] == 0:     # if normal experiment just run this
+            self.session.set_background_stimulus_value(color_balance=self.parameters['bg_trial_stimulus_value'])
+            self.session.set_fix_stimulus_value(color_balance=self.parameters['fix_trial_stimulus_value'])
+
+        elif self.session.config['flickerfuse'] == 1:     # if flicker do this instead
+            self.session.set_background_stimulus_valueff(color_balance=self.parameters['bg_trial_stimulus_value'])
+
+        #######
+
+
 
     def draw(self, *args, **kwargs):
         # draw additional stimuli:
